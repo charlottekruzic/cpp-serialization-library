@@ -1,6 +1,9 @@
 #include "Serial.h"
 
 namespace serial{
+    /***********************************************************************************
+     *                                  OBinaryFile
+    ***********************************************************************************/
     
     /**
      * @brief Constructor
@@ -30,6 +33,11 @@ namespace serial{
         }
     }
 
+    //OBinaryFile::OBinaryFile(OBinaryFile &&other);
+    //OBinaryFile::OBinaryFile &operator=(OBinaryFile &&other);
+
+
+
     /**
      * @brief Write `size` bytes pointed by `data` in the file
      *
@@ -40,11 +48,106 @@ namespace serial{
     }
 
 
+    OBinaryFile &operator<<(OBinaryFile &file, uint8_t x){
+        std::cout << " ----- Type uint8_t ----- " << '\n';
+        std::byte b = std::byte(x);
+        size_t w = file.write(&b, sizeof(x));
+        std::cout << "written : " << static_cast <int>(w) << '\n';
+        return file;
+    }
+
+	OBinaryFile &operator<<(OBinaryFile &file, int8_t x){
+        std::byte b = std::byte(x);
+        file.write(&b, 1);
+        return file;
+    }
+
+	OBinaryFile &operator<<(OBinaryFile &file, uint16_t x){
+        std::byte b = std::byte(x);
+        file.write(&b, 2);
+        return file;
+    }
+
+	OBinaryFile &operator<<(OBinaryFile &file, int16_t x){
+        std::byte b = std::byte(x);
+        file.write(&b, 2);
+        return file;
+    }
+
+	OBinaryFile &operator<<(OBinaryFile &file, uint32_t x){
+        std::byte b = std::byte(x);
+        file.write(&b, 4);
+        return file;
+    }
+
+	OBinaryFile &operator<<(OBinaryFile &file, int32_t x){
+        std::byte b = std::byte(x);
+        file.write(&b, 4);
+        return file;
+    }
+
+	OBinaryFile &operator<<(OBinaryFile &file, uint64_t x){
+        std::byte b = std::byte(x);
+        file.write(&b, 8);
+        return file;
+    }
+
+	OBinaryFile &operator<<(OBinaryFile &file, int64_t x){
+        std::byte b = std::byte(x);
+        file.write(&b, 8);
+        return file;
+    }
+
+	OBinaryFile &operator<<(OBinaryFile &file, char x){
+        std::byte b = std::byte(x);
+        file.write(&b, 1);
+        return file;
+    }
+
+	OBinaryFile &operator<<(OBinaryFile &file, float x){
+        std::byte b = std::byte(x);
+        file.write(&b, 4);
+        return file;
+    }
+
+	OBinaryFile &operator<<(OBinaryFile &file, double x){
+        std::byte b = std::byte(x);
+        file.write(&b, 8);
+        return file;
+    }
+
+	OBinaryFile &operator<<(OBinaryFile &file, bool x){
+        std::byte b = std::byte(x);
+        file.write(&b, 1);
+        return file;
+    }
+
+	OBinaryFile &operator<<(OBinaryFile &file, const std::string &x){
+        size_t size = x.size();
+        std::byte size_b = std::byte(size);
+        file.write(&size_b, sizeof(size));
+
+        for (auto& letter : x) {
+            file<<letter;
+        }
+
+        return file;
+    }
 
 
 
 
 
+
+
+
+
+
+
+
+    /***********************************************************************************
+     *                                  IBinaryFile
+    ***********************************************************************************/
 
 
 

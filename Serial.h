@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <cstdio>
 
+#include <iostream>						//A supprimer
+
 #include <array>
 #include <map>
 #include <set>
@@ -116,6 +118,13 @@ namespace serial
 	template <typename T>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::vector<T> &x)
 	{
+		size_t size = x.size();
+		file.write(reinterpret_cast<const std::byte*>(&size), sizeof(size));
+        
+		for(auto& element : x){
+			file<<element;
+		}
+
 		return file;
 	}
 
