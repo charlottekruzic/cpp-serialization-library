@@ -5,7 +5,8 @@
 #include <cstdint>
 #include <cstdio>
 
-#include <iostream>						//A supprimer
+#include <iostream>	 		//A supprimer
+#include <cstring>			//Peut etre utiliser ?
 
 #include <array>
 #include <map>
