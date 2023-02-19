@@ -119,8 +119,10 @@ namespace serial
 	template <typename T>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::vector<T> &x)
 	{
-		size_t size = x.size();
-		file.write(reinterpret_cast<const std::byte*>(&size), sizeof(size));
+		std::cout << " ----- Type vector ----- " << '\n';
+
+		size_t vector_size = x.size();
+		file << vector_size;
         
 		for(auto& element : x){
 			file<<element;
@@ -132,18 +134,21 @@ namespace serial
 	template <typename T, std::size_t N>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::array<T, N> &x)
 	{
+		std::cout << " ----- Type array ----- " << '\n';
 		return file;
 	}
 
 	template <typename K, typename V>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::map<K, V> &x)
 	{
+		std::cout << " ----- Type map ----- " << '\n';
 		return file;
 	}
 
 	template <typename T>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::set<T> &x)
 	{
+		std::cout << " ----- Type set ----- " << '\n';
 		return file;
 	}
 
@@ -164,6 +169,16 @@ namespace serial
 	template <typename T>
 	IBinaryFile &operator>>(IBinaryFile &file, std::vector<T> &x)
 	{
+		std::cout << " +++++ Type vector +++++ " << '\n';
+		size_t vector_size;
+		file >> vector_size;
+
+		x.resize(vector_size);
+
+		for(auto& element : x){
+			file >> element;
+		}
+
 		return file;
 	}
 

@@ -199,4 +199,116 @@ namespace serial{
     std::size_t IBinaryFile::read(std::byte *data, std::size_t size){
         return fread(data , sizeof(std::byte), size, m_file);
     }
+
+
+
+
+    IBinaryFile &operator>>(IBinaryFile &file, int8_t &x){
+        std::cout << " +++++ Type int8_t +++++ " << '\n';
+        std::byte read{};
+        file.read(&read, 1);
+        x = static_cast<int8_t>(read);
+        return file;
+    }
+
+	IBinaryFile &operator>>(IBinaryFile &file, uint8_t &x){
+        std::cout << " +++++ Type uint8_t +++++ " << '\n';
+        std::byte read{};
+        file.read(&read, 1);
+        x = static_cast<int8_t>(read);
+        return file;       
+    }
+
+	IBinaryFile &operator>>(IBinaryFile &file, int16_t &x){
+        std::cout << " +++++ Type int16_t +++++ " << '\n';
+        std::byte read[2];
+        file.read(read, 2);
+        std::memcpy(&x, read, sizeof(int16_t));
+        return file;
+    }
+
+	IBinaryFile &operator>>(IBinaryFile &file, uint16_t &x){
+        std::cout << " +++++ Type uint16_t +++++ " << '\n';
+        std::byte read[2];
+        file.read(read, 2);
+        std::memcpy(&x, read, sizeof(uint16_t));
+        return file;
+    }
+
+	IBinaryFile &operator>>(IBinaryFile &file, int32_t &x){
+        std::cout << " +++++ Type int32_t +++++ " << '\n';
+        std::byte read[4];
+        file.read(read, 4);
+        std::memcpy(&x, read, sizeof(int32_t));
+        return file;
+    }
+
+	IBinaryFile &operator>>(IBinaryFile &file, uint32_t &x){
+        std::cout << " +++++ Type uint32_t +++++ " << '\n';
+        std::byte read[4];
+        file.read(read, 4);
+        std::memcpy(&x, read, sizeof(uint32_t));
+        return file;
+    }
+
+	IBinaryFile &operator>>(IBinaryFile &file, int64_t &x){
+        std::cout << " +++++ Type int64_t +++++ " << '\n';
+        std::byte read[8];
+        file.read(read, 8);
+        std::memcpy(&x, read, sizeof(int64_t));
+        return file;
+    }
+
+	IBinaryFile &operator>>(IBinaryFile &file, uint64_t &x){
+        std::cout << " +++++ Type uint64_t +++++ " << '\n';
+        std::byte read[8];
+        file.read(read, 8);
+        std::memcpy(&x, read, sizeof(uint64_t));
+        return file;
+    }
+
+	IBinaryFile &operator>>(IBinaryFile &file, char &x){
+        std::cout << " +++++ Type char +++++ " << '\n';
+        std::byte read{};
+        file.read(&read, 1);
+        x = static_cast<char>(read);
+        return file;
+    }
+
+	IBinaryFile &operator>>(IBinaryFile &file, float &x){
+        std::cout << " +++++ Type float +++++ " << '\n';
+        std::byte read[4];
+        file.read(read, 4);
+        std::memcpy(&x, read, sizeof(float));
+        return file;
+    }
+
+	IBinaryFile &operator>>(IBinaryFile &file, double &x){
+        std::cout << " +++++ Type double +++++ " << '\n';
+        std::byte read[8];
+        file.read(read, 8);
+        std::memcpy(&x, read, sizeof(double));
+        return file;
+    }
+
+	IBinaryFile &operator>>(IBinaryFile &file, bool &x){
+        std::cout << " +++++ Type bool +++++ " << '\n';
+        std::byte read{};
+        file.read(&read, 1);
+        x = static_cast<bool>(read);
+        return file;
+    }
+
+	IBinaryFile &operator>>(IBinaryFile &file, std::string &x){
+        std::cout << " +++++ Type string +++++ " << '\n';
+        size_t size_string;
+        file >> size_string;
+
+        for (size_t i = 0; i < size_string; i++) {
+            char c;
+            file >> c;
+            x.push_back(c);
+        }
+        return file;
+    }
 }

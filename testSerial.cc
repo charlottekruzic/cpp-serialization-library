@@ -25,239 +25,213 @@ TEST(SerialReadTest, Default)
 }
 
 TEST(SerialSerializationTest, uint8)
-{                                                   //faire avec >>
+{
     uint8_t write = 42;
-    size_t s_write = sizeof(write);
     {
         serial::OBinaryFile file("test_uint8.bin");
         file << write;
     }
 
-    std::byte read{};
+    uint8_t read;
     {
         serial::IBinaryFile file("test_uint8.bin");
-        size_t bytes_read = file.read(&read, s_write);
-        ASSERT_EQ(bytes_read, s_write);
+        file >> read;
     }
-    ASSERT_EQ(write, static_cast<uint8_t>(read));  
+    ASSERT_EQ(write, read);
 }
 
 TEST(SerialSerializationTest, int8)
-{                                                   //faire avec >>
+{
     int8_t write = -42;
-    size_t s_write = sizeof(write);
     {
         serial::OBinaryFile file("test_int8.bin");
         file << write;
     }
 
-    std::byte read{};
+    int8_t read;
     {
         serial::IBinaryFile file("test_int8.bin");
-        size_t bytes_read = file.read(&read, s_write);
-        ASSERT_EQ(bytes_read, s_write);
+        file >> read;
     }
-    ASSERT_EQ(write, static_cast<int8_t>(read));  
+    ASSERT_EQ(write, read);
 }
 
 TEST(SerialSerializationTest, uint16)
-{                                                   //faire avec >>
+{
     uint16_t write = 5000;
-    size_t s_write = sizeof(write);
+    
     {
         serial::OBinaryFile file("test_uint16.bin");
         file << write;
     }
 
-    std::byte read[2];
+    uint16_t read;
     {
         serial::IBinaryFile file("test_uint16.bin");
-        uint bytes_read = file.read(read, s_write);
-        ASSERT_EQ(bytes_read, s_write);
+        file >> read;
     }
-    uint16_t int_read;
-    std::memcpy(&int_read, read, sizeof(uint16_t));
-    ASSERT_EQ(write, int_read);
+    ASSERT_EQ(write, read);
 }
 
 TEST(SerialSerializationTest, int16)
-{                                                   //faire avec >>
+{
     int16_t write = -5000;
-    size_t s_write = sizeof(write);
+    
     {
         serial::OBinaryFile file("test_int16.bin");
         file << write;
     }
 
-    std::byte read[2];
+    int16_t read;
     {
         serial::IBinaryFile file("test_int16.bin");
-        uint bytes_read = file.read(read, s_write);
-        ASSERT_EQ(bytes_read, s_write);
+        file >> read;
     }
-    int16_t int_read;
-    std::memcpy(&int_read, read, sizeof(int16_t));
-    ASSERT_EQ(write, int_read);
+    ASSERT_EQ(write, read);
 }
 
 TEST(SerialSerializationTest, uint32)
-{                                                   //faire avec >>
+{ // faire avec >>
     uint32_t write = 70000;
-    size_t s_write = sizeof(write);
+    
     {
         serial::OBinaryFile file("test_uint32_t.bin");
         file << write;
     }
 
-    std::byte read[4];
+    uint32_t read;
     {
         serial::IBinaryFile file("test_uint32_t.bin");
-        uint bytes_read = file.read(read, s_write);
-        ASSERT_EQ(bytes_read, s_write);
+        file >> read;
     }
-    uint32_t int_read;
-    std::memcpy(&int_read, read, sizeof(uint32_t));
-    ASSERT_EQ(write, int_read);
+    
+    ASSERT_EQ(write, read);
 }
 
 TEST(SerialSerializationTest, int32)
-{                                                   //faire avec >>
+{ // faire avec >>
     int32_t write = -70000;
-    size_t s_write = sizeof(write);
+    
     {
         serial::OBinaryFile file("test_int32_t.bin");
         file << write;
     }
 
-    std::byte read[4];
+    int32_t read;
     {
         serial::IBinaryFile file("test_int32_t.bin");
-        uint bytes_read = file.read(read, s_write);
-        ASSERT_EQ(bytes_read, s_write);
+        file >> read;
     }
-    int32_t int_read;
-    std::memcpy(&int_read, read, sizeof(int32_t));
-    ASSERT_EQ(write, int_read);
+    ASSERT_EQ(write, read);
 }
 
 TEST(SerialSerializationTest, uint64)
-{                                                   //faire avec >>
+{
     uint64_t write = 70000;
-    size_t s_write = sizeof(write);
+    
     {
         serial::OBinaryFile file("test_uint64_t.bin");
         file << write;
     }
 
-    std::byte read[8];
+    uint64_t read;
     {
         serial::IBinaryFile file("test_uint64_t.bin");
-        uint bytes_read = file.read(read, s_write);
-        ASSERT_EQ(bytes_read, s_write);
+        file >> read;
     }
-    uint64_t int_read;
-    std::memcpy(&int_read, read, sizeof(uint64_t));
-    ASSERT_EQ(write, int_read);
+    ASSERT_EQ(write, read);
 }
 
 TEST(SerialSerializationTest, int64)
-{                                                   //faire avec >>
+{
     int64_t write = -70000;
-    size_t s_write = sizeof(write);
+    
     {
         serial::OBinaryFile file("test_int64_t.bin");
         file << write;
     }
 
-    std::byte read[8];
+    int64_t read;
     {
         serial::IBinaryFile file("test_int64_t.bin");
-        uint bytes_read = file.read(read, s_write);
-        ASSERT_EQ(bytes_read, s_write);
+        file >> read;
     }
-    int64_t int_read;
-    std::memcpy(&int_read, read, sizeof(int64_t));
-    ASSERT_EQ(write, int_read);
+    ASSERT_EQ(write, read);
 }
 
 TEST(SerialSerializationTest, character)
-{                                                   //faire avec >>
+{
     char write = 'a';
-    size_t s_write = sizeof(write);
+    
     {
         serial::OBinaryFile file("test_char.bin");
         file << write;
     }
 
-    std::byte read{};
+    char read;
     {
         serial::IBinaryFile file("test_char.bin");
-        size_t bytes_read = file.read(&read, s_write);
-        ASSERT_EQ(bytes_read, s_write);
+        file >> read;
     }
-    ASSERT_EQ(write, static_cast<char>(read));
+    ASSERT_EQ(write, read);
 }
 
 TEST(SerialSerializationTest, float_)
-{                                                   //faire avec >>
+{
     float write = 1.0e-45f;
-    size_t s_write = sizeof(write);
+    
     {
         serial::OBinaryFile file("test_float.bin");
         file << write;
     }
 
-    std::byte read[4];
+    float read;
     {
         serial::IBinaryFile file("test_float.bin");
-        uint bytes_read = file.read(read, s_write);
-        ASSERT_EQ(bytes_read, s_write);
+        file >> read;
     }
-    float float_read;
-    std::memcpy(&float_read, read, sizeof(float));
-    ASSERT_EQ(write, float_read);
+    
+    ASSERT_EQ(write, read);
 }
 
 TEST(SerialSerializationTest, double_)
-{                                                   //faire avec >>
+{
     double write = 7.23671;
-    size_t s_write = sizeof(write);
+    
     {
         serial::OBinaryFile file("test_double.bin");
         file << write;
     }
 
-    std::byte read[8];
+    double read;
     {
         serial::IBinaryFile file("test_double.bin");
-        uint bytes_read = file.read(read, s_write);
-        ASSERT_EQ(bytes_read, s_write);
+        file >> read;
     }
-    double double_read;
-    std::memcpy(&double_read, read, sizeof(double));
-    ASSERT_EQ(write, double_read);
+    
+    ASSERT_EQ(write, read);
 }
 
 TEST(SerialSerializationTest, boolean)
-{                                                   //faire avec >>
+{
     bool write = true;
-    size_t s_write = sizeof(write);
+    
     {
         serial::OBinaryFile file("test_bool.bin");
         file << write;
     }
 
-    std::byte read{};
+    bool read;
     {
         serial::IBinaryFile file("test_bool.bin");
-        size_t bytes_read = file.read(&read, s_write);
-        ASSERT_EQ(bytes_read, s_write);
+        file >> read;
     }
-    ASSERT_EQ(write, static_cast<bool>(read));
+    
+    ASSERT_EQ(write, read);
 }
 
 TEST(SerialSerializationTest, string)
-{                                                   //faire avec >>
+{
     std::string write = "the string";
     size_t s_write = write.size();
     size_t size = sizeof(s_write);
@@ -267,27 +241,70 @@ TEST(SerialSerializationTest, string)
         file << write;
     }
 
-    std::byte read_size[size];
-    std::string string_read;
+    std::string read;
     {
         serial::IBinaryFile file("test_string.bin");
-
-        file.read(read_size, size);
-
-        size_t s_read = 0;
-        std::memcpy(&s_read, &read_size, size);
-
-        std::byte read_string[s_read];
-        uint bytes_read = file.read(read_string, s_read);
-        for (const auto& byte : read_string) {
-            char c = static_cast<char>(byte);
-            string_read += c;
-        }
-        ASSERT_EQ(bytes_read, s_read);
+        file >> read;
     }
 
-    ASSERT_EQ(write, string_read);
+    ASSERT_EQ(write, read);
 }
+
+
+TEST(SerialSerializationTest, vector_int)
+{ // faire avec >>
+    std::vector<int> write_vec = {1, 2, 3, 4, 5};
+
+    {
+        serial::OBinaryFile file("test_vector.bin");
+        file << write_vec;
+    }
+
+    std::vector<int> read_vec;
+    {
+        serial::IBinaryFile file_read("test_vector.bin");
+        file_read >> read_vec;
+    }
+
+    ASSERT_EQ(write_vec, read_vec);
+}
+
+TEST(SerialSerializationTest, vector_char)
+{ // faire avec >>
+    std::vector<char> write_vec = {'a', 'b', 'c', 'd'};
+
+    {
+        serial::OBinaryFile file("test_vector.bin");
+        file << write_vec;
+    }
+
+    std::vector<char> read_vec;
+    {
+        serial::IBinaryFile file_read("test_vector.bin");
+        file_read >> read_vec;
+    }
+
+    ASSERT_EQ(write_vec, read_vec);
+}
+
+TEST(SerialSerializationTest, vector_double)
+{ // faire avec >>
+    std::vector<double> write_vec = {1.3424, 4.343, 129274.34};
+
+    {
+        serial::OBinaryFile file("test_vector.bin");
+        file << write_vec;
+    }
+
+    std::vector<double> read_vec;
+    {
+        serial::IBinaryFile file_read("test_vector.bin");
+        file_read >> read_vec;
+    }
+
+    ASSERT_EQ(write_vec, read_vec);
+}
+
 
 /*
 OBinaryFile &operator<<(OBinaryFile &file, const std::vector<T> &x)
