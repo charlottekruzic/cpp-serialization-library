@@ -119,7 +119,7 @@ namespace serial
 	template <typename T>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::vector<T> &x)
 	{
-		std::cout << " ----- Type vector ----- " << '\n';
+		//std::cout << " ----- Type vector ----- " << '\n';
 
 		size_t vector_size = x.size();
 		file << vector_size;
@@ -134,21 +134,34 @@ namespace serial
 	template <typename T, std::size_t N>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::array<T, N> &x)
 	{
-		std::cout << " ----- Type array ----- " << '\n';
+		//std::cout << " ----- Type array ----- " << '\n';
+        file << N;
+		for (auto& element : x) {
+			file << element;
+		}
 		return file;
 	}
 
 	template <typename K, typename V>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::map<K, V> &x)
 	{
-		std::cout << " ----- Type map ----- " << '\n';
+		//std::cout << " ----- Type map ----- " << '\n';
+		file << x.size();
+		for (const auto &p : x) {
+			file << p.first << p.second;
+		}
 		return file;
 	}
 
 	template <typename T>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::set<T> &x)
 	{
-		std::cout << " ----- Type set ----- " << '\n';
+		//std::cout << " ----- Type set ----- " << '\n';
+		size_t size = x.size();
+		file << size;
+		for (const T& value : x) {
+			file << value;
+		}
 		return file;
 	}
 
@@ -169,7 +182,7 @@ namespace serial
 	template <typename T>
 	IBinaryFile &operator>>(IBinaryFile &file, std::vector<T> &x)
 	{
-		std::cout << " +++++ Type vector +++++ " << '\n';
+		//std::cout << " +++++ Type vector +++++ " << '\n';
 		size_t vector_size;
 		file >> vector_size;
 
@@ -184,19 +197,46 @@ namespace serial
 
 	template <typename T, std::size_t N>
 	IBinaryFile &operator>>(IBinaryFile &file, std::array<T, N> &x)
-	{
+	{		
+		//std::cout << " +++++ Type array +++++ " << '\n';
+		
+		size_t array_size;
+  		file >> array_size;
+
+		if(array_size!=N){
+			std::cout << " Error ! " << '\n';
+		}
+
+		for (auto& element : x) {
+			file >> element;
+		}
 		return file;
 	}
 
 	template <typename K, typename V>
 	IBinaryFile &operator>>(IBinaryFile &file, std::map<K, V> &x)
 	{
+		size_t size;
+		file >> size;
+		for (size_t i = 0; i < size; ++i) {
+			K key;
+			V value;
+			file >> key >> value;
+			x.emplace(std::move(key), std::move(value));
+		}
 		return file;
 	}
 
 	template <typename T>
 	IBinaryFile &operator>>(IBinaryFile &file, std::set<T> &x)
 	{
+		size_t size;
+		file >> size;
+		for (size_t i = 0; i < size; ++i) {
+			T value;
+			file >> value;
+			x.insert(std::move(value));
+		}
 		return file;
 	}
 

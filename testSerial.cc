@@ -1,10 +1,10 @@
 #include "Serial.h"
 
 #include <gtest/gtest.h>
-#include <filesystem>
+//#include <filesystem>
 #include <fstream>
 
-namespace fs = std::filesystem;
+//namespace fs = std::filesystem;
 
 TEST(SerialWriteTest, Default)
 {
@@ -21,40 +21,179 @@ TEST(SerialReadTest, Default)
     size_t bytes_read = file.read(&b, 1);
     ASSERT_EQ(bytes_read, 1u);
     ASSERT_EQ(42, static_cast<int>(b));
-    // std::cout << "read : " << static_cast <int>(b) << '\n';
 }
 
-TEST(SerialSerializationTest, uint8)
+/**
+ * uint8_t
+*/
+TEST(uint8Test, Default)
 {
     uint8_t write = 42;
     {
-        serial::OBinaryFile file("test_uint8.bin");
+        serial::OBinaryFile file("test_uint8_1.bin");
         file << write;
     }
 
     uint8_t read;
     {
-        serial::IBinaryFile file("test_uint8.bin");
+        serial::IBinaryFile file("test_uint8_1.bin");
         file >> read;
     }
     ASSERT_EQ(write, read);
 }
 
-TEST(SerialSerializationTest, int8)
+TEST(uint8Test, Minimum)
+{
+    uint8_t write = 0;
+    {
+        serial::OBinaryFile file("test_uint8_2.bin");
+        file << write;
+    }
+
+    uint8_t read;
+    {
+        serial::IBinaryFile file("test_uint8_2.bin");
+        file >> read;
+    }
+    ASSERT_EQ(write, read);
+}
+
+TEST(uint8Test, Maximal)
+{
+    uint8_t write = 255;
+    {
+        serial::OBinaryFile file("test_uint8_3.bin");
+        file << write;
+    }
+
+    uint8_t read;
+    {
+        serial::IBinaryFile file("test_uint8_3.bin");
+        file >> read;
+    }
+    ASSERT_EQ(write, read);
+}
+
+TEST(uint8Test, Many)
+{
+    uint8_t write1 = 1;
+    uint8_t write2 = 2;
+    uint8_t write3 = 3;
+    uint8_t write4 = 4;
+    {
+        serial::OBinaryFile file("test_uint8_4.bin");
+        file << write1;
+        file << write2;
+        file << write3;
+        file << write4;
+    }
+
+    uint8_t read1;
+    uint8_t read2;
+    uint8_t read3;
+    uint8_t read4;
+    {
+        serial::IBinaryFile file("test_uint8_4.bin");
+        file >> read1;
+        file >> read2;
+        file >> read3;
+        file >> read4;
+    }
+    ASSERT_EQ(write1, read1);
+    ASSERT_EQ(write2, read2);
+    ASSERT_EQ(write3, read3);
+    ASSERT_EQ(write4, read4);
+}
+
+/**
+ * int8_t
+*/
+
+TEST(int8Test, Negative)
 {
     int8_t write = -42;
     {
-        serial::OBinaryFile file("test_int8.bin");
+        serial::OBinaryFile file("test_int8_1.bin");
         file << write;
     }
 
     int8_t read;
     {
-        serial::IBinaryFile file("test_int8.bin");
+        serial::IBinaryFile file("test_int8_1.bin");
         file >> read;
     }
     ASSERT_EQ(write, read);
 }
+
+TEST(int8Test, Positive)
+{
+    int8_t write = 42;
+    {
+        serial::OBinaryFile file("test_int8_2.bin");
+        file << write;
+    }
+
+    int8_t read;
+    {
+        serial::IBinaryFile file("test_int8_2.bin");
+        file >> read;
+    }
+    ASSERT_EQ(write, read);
+}
+
+TEST(int8Test, Minimum)
+{
+    int8_t write = -128;
+    {
+        serial::OBinaryFile file("test_int8_3.bin");
+        file << write;
+    }
+
+    int8_t read;
+    {
+        serial::IBinaryFile file("test_int8_3.bin");
+        file >> read;
+    }
+    ASSERT_EQ(write, read);
+}
+
+TEST(int8Test, Maximum)
+{
+    int8_t write = 127;
+    {
+        serial::OBinaryFile file("test_int8_4.bin");
+        file << write;
+    }
+
+    int8_t read;
+    {
+        serial::IBinaryFile file("test_int8_4.bin");
+        file >> read;
+    }
+    ASSERT_EQ(write, read);
+}
+
+TEST(int8Test, Null)
+{
+    int8_t write = 0;
+    {
+        serial::OBinaryFile file("test_int8_5.bin");
+        file << write;
+    }
+
+    int8_t read;
+    {
+        serial::IBinaryFile file("test_int8_5.bin");
+        file >> read;
+    }
+    ASSERT_EQ(write, read);
+}
+
+
+
+/**
+ * uint16
+*/
 
 TEST(SerialSerializationTest, uint16)
 {
@@ -73,6 +212,10 @@ TEST(SerialSerializationTest, uint16)
     ASSERT_EQ(write, read);
 }
 
+/**
+ * int16
+*/
+
 TEST(SerialSerializationTest, int16)
 {
     int16_t write = -5000;
@@ -90,8 +233,12 @@ TEST(SerialSerializationTest, int16)
     ASSERT_EQ(write, read);
 }
 
+/**
+ * uint32
+*/
+
 TEST(SerialSerializationTest, uint32)
-{ // faire avec >>
+{
     uint32_t write = 70000;
     
     {
@@ -108,8 +255,12 @@ TEST(SerialSerializationTest, uint32)
     ASSERT_EQ(write, read);
 }
 
+/**
+ * int32
+*/
+
 TEST(SerialSerializationTest, int32)
-{ // faire avec >>
+{
     int32_t write = -70000;
     
     {
@@ -124,6 +275,10 @@ TEST(SerialSerializationTest, int32)
     }
     ASSERT_EQ(write, read);
 }
+
+/**
+ * uint64
+*/
 
 TEST(SerialSerializationTest, uint64)
 {
@@ -233,8 +388,7 @@ TEST(SerialSerializationTest, boolean)
 TEST(SerialSerializationTest, string)
 {
     std::string write = "the string";
-    size_t s_write = write.size();
-    size_t size = sizeof(s_write);
+    write.size();
 
     {
         serial::OBinaryFile file("test_string.bin");
@@ -252,7 +406,7 @@ TEST(SerialSerializationTest, string)
 
 
 TEST(SerialSerializationTest, vector_int)
-{ // faire avec >>
+{
     std::vector<int> write_vec = {1, 2, 3, 4, 5};
 
     {
@@ -270,7 +424,7 @@ TEST(SerialSerializationTest, vector_int)
 }
 
 TEST(SerialSerializationTest, vector_char)
-{ // faire avec >>
+{
     std::vector<char> write_vec = {'a', 'b', 'c', 'd'};
 
     {
@@ -288,7 +442,7 @@ TEST(SerialSerializationTest, vector_char)
 }
 
 TEST(SerialSerializationTest, vector_double)
-{ // faire avec >>
+{
     std::vector<double> write_vec = {1.3424, 4.343, 129274.34};
 
     {
@@ -305,9 +459,48 @@ TEST(SerialSerializationTest, vector_double)
     ASSERT_EQ(write_vec, read_vec);
 }
 
+TEST(SerialSerializationTest, array_)
+{
+     std::array<int, 5> write_array = {1, 2, 3, 4, 5};
+
+    {
+        serial::OBinaryFile file("test_array.bin");
+        file << write_array;
+    }
+
+    std::array<int, 5> read_array;
+    {
+        serial::IBinaryFile file_read("test_array.bin");
+        file_read >> read_array;
+    }
+
+    ASSERT_EQ(write_array, read_array);
+}
+
+TEST(SerialSerializationTest, map_)
+{
+    std::map<std::string, int> write_map = {
+        {"foo", 42},
+        {"bar", 1337},
+        {"baz", 69}
+    };
+
+    {
+        serial::OBinaryFile file("test_map.bin");
+        file << write_map;
+    }
+
+    std::map<std::string, int> read_map;
+    {
+        serial::IBinaryFile file_read("test_map.bin");
+        file_read >> read_map;
+    }
+
+    ASSERT_EQ(write_map, read_map);
+}
+
 
 /*
-OBinaryFile &operator<<(OBinaryFile &file, const std::vector<T> &x)
 OBinaryFile &operator<<(OBinaryFile &file, const std::array<T, N> &x)
 OBinaryFile &operator<<(OBinaryFile &file, const std::map<K, V> &x)
 OBinaryFile &operator<<(OBinaryFile &file, const std::set<T> &x)

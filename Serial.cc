@@ -49,21 +49,21 @@ namespace serial{
 
 
     OBinaryFile &operator<<(OBinaryFile &file, uint8_t x){
-        std::cout << " ----- Type uint8_t ----- " << '\n';
+        //std::cout << " ----- Type uint8_t ----- " << '\n';
         std::byte b = std::byte(x);
         file.write(&b, sizeof(x));
         return file;
     }
 
 	OBinaryFile &operator<<(OBinaryFile &file, int8_t x){
-        std::cout << " ----- Type int8_t ----- " << '\n';
+        //std::cout << " ----- Type int8_t ----- " << '\n';
         std::byte b = std::byte(x);
         file.write(&b, 1);
         return file;
     }
 
 	OBinaryFile &operator<<(OBinaryFile &file, uint16_t x){
-        std::cout << " ----- Type uint16_t ----- " << '\n';
+        //std::cout << " ----- Type uint16_t ----- " << '\n';
         std::byte b[2];
         std::memcpy(b, &x, 2);
         file.write(b, 2);
@@ -71,7 +71,7 @@ namespace serial{
     }
 
 	OBinaryFile &operator<<(OBinaryFile &file, int16_t x){
-        std::cout << " ----- Type int16_t ----- " << '\n';
+        //std::cout << " ----- Type int16_t ----- " << '\n';
         std::byte b[2];
         std::memcpy(b, &x, 2);
         file.write(b, 2);
@@ -79,7 +79,7 @@ namespace serial{
     }
 
 	OBinaryFile &operator<<(OBinaryFile &file, uint32_t x){
-        std::cout << " ----- Type uint32_t ----- " << '\n';
+        //std::cout << " ----- Type uint32_t ----- " << '\n';
         std::byte b[4];
         std::memcpy(b, &x, 4);
         file.write(b, 4);
@@ -87,7 +87,7 @@ namespace serial{
     }
 
 	OBinaryFile &operator<<(OBinaryFile &file, int32_t x){
-        std::cout << " ----- Type int32_t ----- " << '\n';
+        //std::cout << " ----- Type int32_t ----- " << '\n';
         std::byte b[4];
         std::memcpy(b, &x, 4);
         file.write(b, 4);
@@ -95,7 +95,7 @@ namespace serial{
     }
 
 	OBinaryFile &operator<<(OBinaryFile &file, uint64_t x){
-        std::cout << " ----- Type uint64_t ----- " << '\n';
+        //std::cout << " ----- Type uint64_t ----- " << '\n';
         std::byte b[8];
         std::memcpy(b, &x, 8);
         file.write(b, 8);
@@ -103,7 +103,7 @@ namespace serial{
     }
 
 	OBinaryFile &operator<<(OBinaryFile &file, int64_t x){
-        std::cout << " ----- Type int64_t ----- " << '\n';
+        //std::cout << " ----- Type int64_t ----- " << '\n';
         std::byte b[8];
         std::memcpy(b, &x, 8);
         file.write(b, 8);
@@ -111,14 +111,14 @@ namespace serial{
     }
 
 	OBinaryFile &operator<<(OBinaryFile &file, char x){
-        std::cout << " ----- Type char ----- " << '\n';
+        //std::cout << " ----- Type char ----- " << '\n';
         std::byte b = std::byte(x);
         file.write(&b, 1);
         return file;
     }
 
 	OBinaryFile &operator<<(OBinaryFile &file, float x){
-        std::cout << " ----- Type float ----- " << '\n';
+        //std::cout << " ----- Type float ----- " << '\n';
         std::byte b[4];
         std::memcpy(b, &x, 4);
         file.write(b, 4);
@@ -126,7 +126,7 @@ namespace serial{
     }
 
 	OBinaryFile &operator<<(OBinaryFile &file, double x){
-        std::cout << " ----- Type double ----- " << '\n';
+        //std::cout << " ----- Type double ----- " << '\n';
         std::byte b[8];
         std::memcpy(b, &x, 8);
         file.write(b, 8);
@@ -134,14 +134,14 @@ namespace serial{
     }
 
 	OBinaryFile &operator<<(OBinaryFile &file, bool x){
-        std::cout << " ----- Type bool ----- " << '\n';
+        //std::cout << " ----- Type bool ----- " << '\n';
         std::byte b = std::byte(x);
         file.write(&b, 1);
         return file;
     }
 
 	OBinaryFile &operator<<(OBinaryFile &file, const std::string &x){
-        std::cout << " ----- Type string ----- " << '\n';
+        //std::cout << " ----- Type string ----- " << '\n';
         size_t size = x.size();  
         file<<size;
         for (char letter : x) {
@@ -204,7 +204,7 @@ namespace serial{
 
 
     IBinaryFile &operator>>(IBinaryFile &file, int8_t &x){
-        std::cout << " +++++ Type int8_t +++++ " << '\n';
+        //std::cout << " +++++ Type int8_t +++++ " << '\n';
         std::byte read{};
         file.read(&read, 1);
         x = static_cast<int8_t>(read);
@@ -212,7 +212,7 @@ namespace serial{
     }
 
 	IBinaryFile &operator>>(IBinaryFile &file, uint8_t &x){
-        std::cout << " +++++ Type uint8_t +++++ " << '\n';
+        //std::cout << " +++++ Type uint8_t +++++ " << '\n';
         std::byte read{};
         file.read(&read, 1);
         x = static_cast<int8_t>(read);
@@ -220,7 +220,7 @@ namespace serial{
     }
 
 	IBinaryFile &operator>>(IBinaryFile &file, int16_t &x){
-        std::cout << " +++++ Type int16_t +++++ " << '\n';
+        //std::cout << " +++++ Type int16_t +++++ " << '\n';
         std::byte read[2];
         file.read(read, 2);
         std::memcpy(&x, read, sizeof(int16_t));
@@ -228,7 +228,7 @@ namespace serial{
     }
 
 	IBinaryFile &operator>>(IBinaryFile &file, uint16_t &x){
-        std::cout << " +++++ Type uint16_t +++++ " << '\n';
+        //std::cout << " +++++ Type uint16_t +++++ " << '\n';
         std::byte read[2];
         file.read(read, 2);
         std::memcpy(&x, read, sizeof(uint16_t));
@@ -236,7 +236,7 @@ namespace serial{
     }
 
 	IBinaryFile &operator>>(IBinaryFile &file, int32_t &x){
-        std::cout << " +++++ Type int32_t +++++ " << '\n';
+        //std::cout << " +++++ Type int32_t +++++ " << '\n';
         std::byte read[4];
         file.read(read, 4);
         std::memcpy(&x, read, sizeof(int32_t));
@@ -244,7 +244,7 @@ namespace serial{
     }
 
 	IBinaryFile &operator>>(IBinaryFile &file, uint32_t &x){
-        std::cout << " +++++ Type uint32_t +++++ " << '\n';
+        //std::cout << " +++++ Type uint32_t +++++ " << '\n';
         std::byte read[4];
         file.read(read, 4);
         std::memcpy(&x, read, sizeof(uint32_t));
@@ -252,7 +252,7 @@ namespace serial{
     }
 
 	IBinaryFile &operator>>(IBinaryFile &file, int64_t &x){
-        std::cout << " +++++ Type int64_t +++++ " << '\n';
+        //std::cout << " +++++ Type int64_t +++++ " << '\n';
         std::byte read[8];
         file.read(read, 8);
         std::memcpy(&x, read, sizeof(int64_t));
@@ -260,7 +260,7 @@ namespace serial{
     }
 
 	IBinaryFile &operator>>(IBinaryFile &file, uint64_t &x){
-        std::cout << " +++++ Type uint64_t +++++ " << '\n';
+        //std::cout << " +++++ Type uint64_t +++++ " << '\n';
         std::byte read[8];
         file.read(read, 8);
         std::memcpy(&x, read, sizeof(uint64_t));
@@ -268,7 +268,7 @@ namespace serial{
     }
 
 	IBinaryFile &operator>>(IBinaryFile &file, char &x){
-        std::cout << " +++++ Type char +++++ " << '\n';
+        //std::cout << " +++++ Type char +++++ " << '\n';
         std::byte read{};
         file.read(&read, 1);
         x = static_cast<char>(read);
@@ -276,7 +276,7 @@ namespace serial{
     }
 
 	IBinaryFile &operator>>(IBinaryFile &file, float &x){
-        std::cout << " +++++ Type float +++++ " << '\n';
+        //std::cout << " +++++ Type float +++++ " << '\n';
         std::byte read[4];
         file.read(read, 4);
         std::memcpy(&x, read, sizeof(float));
@@ -284,7 +284,7 @@ namespace serial{
     }
 
 	IBinaryFile &operator>>(IBinaryFile &file, double &x){
-        std::cout << " +++++ Type double +++++ " << '\n';
+        //std::cout << " +++++ Type double +++++ " << '\n';
         std::byte read[8];
         file.read(read, 8);
         std::memcpy(&x, read, sizeof(double));
@@ -292,7 +292,7 @@ namespace serial{
     }
 
 	IBinaryFile &operator>>(IBinaryFile &file, bool &x){
-        std::cout << " +++++ Type bool +++++ " << '\n';
+        //std::cout << " +++++ Type bool +++++ " << '\n';
         std::byte read{};
         file.read(&read, 1);
         x = static_cast<bool>(read);
@@ -300,7 +300,7 @@ namespace serial{
     }
 
 	IBinaryFile &operator>>(IBinaryFile &file, std::string &x){
-        std::cout << " +++++ Type string +++++ " << '\n';
+        //std::cout << " +++++ Type string +++++ " << '\n';
         size_t size_string;
         file >> size_string;
 
