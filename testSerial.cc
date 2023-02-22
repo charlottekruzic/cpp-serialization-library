@@ -13,7 +13,151 @@ fs::path createFile(std::string file_name)
     std::filesystem::path file_path = directory_path;
     file_path.append(file_name);
 
+    // std::ofstream ofs(file_path, std::ios::trunc);                  //Revoir
+    // ofs.close();                                                    //Revoir
+
     return file_path;
+}
+
+void deleteFiles(const fs::path &file_path)
+{
+    if (fs::exists(file_path))
+    {
+        fs::remove(file_path);
+    }
+}
+
+/**
+ * Write & Read 
+ */
+TEST(WriteReadTest, OneByte)
+{
+    fs::path name = createFile("test_write_read_1.bin");
+    {
+        std::byte b{'a'};
+        serial::OBinaryFile file(name);
+        size_t bytes_written = file.write(&b, 1);
+        ASSERT_EQ(bytes_written, 1u);
+    }
+
+    ASSERT_EQ(fs::file_size(name), 1u);
+
+    {
+        std::byte read{};
+        serial::IBinaryFile file(name);
+        size_t bytes_read =file.read(&read, 1);
+        ASSERT_EQ(bytes_read, 1u);
+        ASSERT_EQ(static_cast<char>(read), 'a');
+    }
+
+    ASSERT_EQ(fs::file_size(name), 1u);
+}
+
+TEST(WriteReadTest, ManyBytes)
+{
+    fs::path name = createFile("test_write_read_2.bin");
+    {
+        std::byte b[3] = {std::byte(1), std::byte(2), std::byte(3)};
+        serial::OBinaryFile file(name);
+        size_t bytes_written = file.write(b, 3);
+        ASSERT_EQ(bytes_written, 3u);
+    }
+    ASSERT_EQ(fs::file_size(name), 3u);
+
+    {
+        std::byte read{};
+        serial::IBinaryFile file(name);
+        size_t bytes_read =file.read(&read, 1);
+        ASSERT_EQ(bytes_read, 1u);
+        ASSERT_EQ(1, static_cast<int>(read));
+        
+        bytes_read =file.read(&read, 1);
+        ASSERT_EQ(bytes_read, 1u);
+        ASSERT_EQ(2, static_cast<int>(read));
+
+        bytes_read =file.read(&read, 1);
+        ASSERT_EQ(bytes_read, 1u);
+        ASSERT_EQ(3, static_cast<int>(read));
+    }
+
+    ASSERT_EQ(fs::file_size(name), 3u);
+}
+
+/**
+ * Write & Mode 
+ */
+
+TEST(WriteModeTest, WriteAppend)
+{
+    fs::path name = createFile("test_write_1.bin");
+    {
+        std::byte b1{1};
+        serial::OBinaryFile file(name);
+        size_t bytes_written1 = file.write(&b1, 1);
+        ASSERT_EQ(bytes_written1, 1u);
+    }
+    ASSERT_EQ(fs::file_size(name), 1u);
+    {
+        std::byte b2[3] = {std::byte(1), std::byte(2), std::byte(3)};
+        serial::OBinaryFile file(name, serial::OBinaryFile::Mode::Append);
+        size_t bytes_written2 = file.write(b2, 3);
+        ASSERT_EQ(bytes_written2, 3u);
+    }
+    ASSERT_EQ(fs::file_size(name), 4u);
+}
+
+TEST(WriteModeTest, WriteTruncate)
+{
+    fs::path name = createFile("test_write_2.bin");
+    {
+        std::byte b1{1};
+        serial::OBinaryFile file(name);
+
+        size_t bytes_written1 = file.write(&b1, 1);
+        ASSERT_EQ(bytes_written1, 1u);
+    }
+    ASSERT_EQ(fs::file_size(name), 1u);
+    {
+        std::byte b2[3] = {std::byte(1), std::byte(2), std::byte(3)};
+        serial::OBinaryFile file(name, serial::OBinaryFile::Mode::Truncate);
+        size_t bytes_written2 = file.write(b2, 3);
+        ASSERT_EQ(bytes_written2, 3u);
+    }
+    ASSERT_EQ(fs::file_size(name), 3u);
+    {
+        std::byte b3{4};
+        serial::OBinaryFile file(name, serial::OBinaryFile::Mode::Truncate);
+        size_t bytes_written2 = file.write(&b3, 1);
+        ASSERT_EQ(bytes_written2, 1u);
+    }
+    ASSERT_EQ(fs::file_size(name), 1u);
+}
+
+TEST(WriteModeTest, WriteTruncateAndAppend)
+{
+    fs::path name = createFile("test_write_3.bin");
+    {
+        std::byte b1{1};
+        serial::OBinaryFile file(name);
+
+        size_t bytes_written1 = file.write(&b1, 1);
+        ASSERT_EQ(bytes_written1, 1u);
+    }
+    ASSERT_EQ(fs::file_size(name), 1u);
+    {
+        std::byte b2[3] = {std::byte(1), std::byte(2), std::byte(3)};
+        serial::OBinaryFile file(name, serial::OBinaryFile::Mode::Truncate);
+        size_t bytes_written2 = file.write(b2, 3);
+        ASSERT_EQ(bytes_written2, 3u);
+    }
+    ASSERT_EQ(fs::file_size(name), 3u);
+    {
+        std::byte b3{4};
+        serial::OBinaryFile file(name, serial::OBinaryFile::Mode::Append);
+        size_t bytes_written2 = file.write(&b3, 1);
+        ASSERT_EQ(bytes_written2, 1u);
+    }
+    ASSERT_EQ(fs::file_size(name), 4u);
 }
 
 /**
@@ -1600,7 +1744,7 @@ TEST(mixedTest, TypeAndContainer)
         serial::OBinaryFile f1(name1);
         serial::OBinaryFile f2 = std::move(f1);
         f2 << write;
-        
+
     }
 
     int64_t read;
@@ -1610,6 +1754,10 @@ TEST(mixedTest, TypeAndContainer)
     }
     ASSERT_EQ(write, read);
 }*/
+
+/**
+ * test append troncate
+ */
 
 int main(int argc, char *argv[])
 {

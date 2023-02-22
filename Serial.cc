@@ -21,11 +21,11 @@ namespace serial{
         }
     }
 
-    OBinaryFile::OBinaryFile(OBinaryFile &&other) noexcept{
-       /* m_filename=other.m_filename;
+    /* OBinaryFile::OBinaryFile(OBinaryFile &&other) noexcept{
+       m_filename=other.m_filename;
         m_file=other.m_file;
 
-        std::byte b[1024];*/
+        std::byte b[1024];
         
 
         
@@ -35,7 +35,7 @@ namespace serial{
     OBinaryFile& OBinaryFile::operator=(OBinaryFile &&other) noexcept{
         
         return *this;
-    }
+    }*/
 
 
     /**
@@ -80,8 +80,10 @@ namespace serial{
 	OBinaryFile &operator<<(OBinaryFile &file, uint16_t x){
         //std::cout << " ----- Type uint16_t ----- " << '\n';
         std::byte b[2];
-        b[0] = static_cast<std::byte>((x >> 8) & 0xFF);
-        b[1] = static_cast<std::byte>(x & 0xFF);
+        uint16_t x_swap = (x << 8) | (x >> 8 );
+        std::memcpy(b, &x_swap , 2);
+        /*b[0] = static_cast<std::byte>((x >> 8) & 0xFF);
+        b[1] = static_cast<std::byte>(x & 0xFF);*/
         file.write(b, 2);
         return file;
     }
@@ -245,9 +247,6 @@ namespace serial{
     std::size_t IBinaryFile::read(std::byte *data, std::size_t size){
         return fread(data , sizeof(std::byte), size, m_file);
     }
-
-
-
 
     IBinaryFile &operator>>(IBinaryFile &file, int8_t &x){
         //std::cout << " +++++ Type int8_t +++++ " << '\n';
