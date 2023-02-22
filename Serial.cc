@@ -21,6 +21,22 @@ namespace serial{
         }
     }
 
+    OBinaryFile::OBinaryFile(OBinaryFile &&other) noexcept{
+       /* m_filename=other.m_filename;
+        m_file=other.m_file;
+
+        std::byte b[1024];*/
+        
+
+        
+
+    }
+
+    OBinaryFile& OBinaryFile::operator=(OBinaryFile &&other) noexcept{
+        
+        return *this;
+    }
+
 
     /**
      * @brief Closes the file
@@ -33,8 +49,7 @@ namespace serial{
         }
     }
 
-    //OBinaryFile::OBinaryFile(OBinaryFile &&other);
-    //OBinaryFile::OBinaryFile &operator=(OBinaryFile &&other);
+    
 
 
 
@@ -65,7 +80,8 @@ namespace serial{
 	OBinaryFile &operator<<(OBinaryFile &file, uint16_t x){
         //std::cout << " ----- Type uint16_t ----- " << '\n';
         std::byte b[2];
-        std::memcpy(b, &x, 2);
+        b[0] = static_cast<std::byte>((x >> 8) & 0xFF);
+        b[1] = static_cast<std::byte>(x & 0xFF);
         file.write(b, 2);
         return file;
     }
@@ -73,7 +89,8 @@ namespace serial{
 	OBinaryFile &operator<<(OBinaryFile &file, int16_t x){
         //std::cout << " ----- Type int16_t ----- " << '\n';
         std::byte b[2];
-        std::memcpy(b, &x, 2);
+        b[0] = static_cast<std::byte>((x >> 8) & 0xFF);
+        b[1] = static_cast<std::byte>(x & 0xFF);
         file.write(b, 2);
         return file;
     }
@@ -81,7 +98,10 @@ namespace serial{
 	OBinaryFile &operator<<(OBinaryFile &file, uint32_t x){
         //std::cout << " ----- Type uint32_t ----- " << '\n';
         std::byte b[4];
-        std::memcpy(b, &x, 4);
+        b[0] = static_cast<std::byte>((x >> 24) & 0xFF);
+        b[1] = static_cast<std::byte>((x >> 16) & 0xFF);
+        b[2] = static_cast<std::byte>((x >> 8) & 0xFF);
+        b[3] = static_cast<std::byte>(x & 0xFF);
         file.write(b, 4);
         return file;
     }
@@ -89,7 +109,10 @@ namespace serial{
 	OBinaryFile &operator<<(OBinaryFile &file, int32_t x){
         //std::cout << " ----- Type int32_t ----- " << '\n';
         std::byte b[4];
-        std::memcpy(b, &x, 4);
+        b[0] = static_cast<std::byte>((x >> 24) & 0xFF);
+        b[1] = static_cast<std::byte>((x >> 16) & 0xFF);
+        b[2] = static_cast<std::byte>((x >> 8) & 0xFF);
+        b[3] = static_cast<std::byte>(x & 0xFF);
         file.write(b, 4);
         return file;
     }
@@ -97,7 +120,14 @@ namespace serial{
 	OBinaryFile &operator<<(OBinaryFile &file, uint64_t x){
         //std::cout << " ----- Type uint64_t ----- " << '\n';
         std::byte b[8];
-        std::memcpy(b, &x, 8);
+        b[0] = static_cast<std::byte>((x >> 56) & 0xFF);
+        b[1] = static_cast<std::byte>((x >> 48) & 0xFF);
+        b[2] = static_cast<std::byte>((x >> 40) & 0xFF);
+        b[3] = static_cast<std::byte>((x >> 32) & 0xFF);
+        b[4] = static_cast<std::byte>((x >> 24) & 0xFF);
+        b[5] = static_cast<std::byte>((x >> 16) & 0xFF);
+        b[6] = static_cast<std::byte>((x >> 8) & 0xFF);
+        b[7] = static_cast<std::byte>(x & 0xFF);
         file.write(b, 8);
         return file;
     }
@@ -105,7 +135,14 @@ namespace serial{
 	OBinaryFile &operator<<(OBinaryFile &file, int64_t x){
         //std::cout << " ----- Type int64_t ----- " << '\n';
         std::byte b[8];
-        std::memcpy(b, &x, 8);
+        b[0] = static_cast<std::byte>((x >> 56) & 0xFF);
+        b[1] = static_cast<std::byte>((x >> 48) & 0xFF);
+        b[2] = static_cast<std::byte>((x >> 40) & 0xFF);
+        b[3] = static_cast<std::byte>((x >> 32) & 0xFF);
+        b[4] = static_cast<std::byte>((x >> 24) & 0xFF);
+        b[5] = static_cast<std::byte>((x >> 16) & 0xFF);
+        b[6] = static_cast<std::byte>((x >> 8) & 0xFF);
+        b[7] = static_cast<std::byte>(x & 0xFF);
         file.write(b, 8);
         return file;
     }
@@ -177,6 +214,15 @@ namespace serial{
         }
     }
 
+   /* IBinaryFile::IBinaryFile(IBinaryFile &&other) noexcept{
+        
+
+    }
+
+    IBinaryFile& IBinaryFile::operator=(IBinaryFile &&other) noexcept{
+        
+    }*/
+
 
     /**
      * @brief Closes the file
@@ -215,7 +261,7 @@ namespace serial{
         //std::cout << " +++++ Type uint8_t +++++ " << '\n';
         std::byte read{};
         file.read(&read, 1);
-        x = static_cast<int8_t>(read);
+        x = static_cast<uint8_t>(read);
         return file;       
     }
 
@@ -223,7 +269,8 @@ namespace serial{
         //std::cout << " +++++ Type int16_t +++++ " << '\n';
         std::byte read[2];
         file.read(read, 2);
-        std::memcpy(&x, read, sizeof(int16_t));
+        x = static_cast<int16_t>(read[0]) << 8 |
+        static_cast<int16_t>(read[1]);
         return file;
     }
 
@@ -231,7 +278,8 @@ namespace serial{
         //std::cout << " +++++ Type uint16_t +++++ " << '\n';
         std::byte read[2];
         file.read(read, 2);
-        std::memcpy(&x, read, sizeof(uint16_t));
+        x = static_cast<uint16_t>(read[0]) << 8 |
+        static_cast<uint16_t>(read[1]);
         return file;
     }
 
@@ -239,7 +287,10 @@ namespace serial{
         //std::cout << " +++++ Type int32_t +++++ " << '\n';
         std::byte read[4];
         file.read(read, 4);
-        std::memcpy(&x, read, sizeof(int32_t));
+        x = static_cast<int32_t>(read[0]) << 24 |
+        static_cast<int32_t>(read[1]) << 16 |
+        static_cast<int32_t>(read[2]) << 8 |
+        static_cast<int32_t>(read[3]);
         return file;
     }
 
@@ -247,7 +298,10 @@ namespace serial{
         //std::cout << " +++++ Type uint32_t +++++ " << '\n';
         std::byte read[4];
         file.read(read, 4);
-        std::memcpy(&x, read, sizeof(uint32_t));
+        x = static_cast<uint32_t>(read[0]) << 24 |
+        static_cast<uint32_t>(read[1]) << 16 |
+        static_cast<uint32_t>(read[2]) << 8 |
+        static_cast<uint32_t>(read[3]);
         return file;
     }
 
@@ -255,7 +309,14 @@ namespace serial{
         //std::cout << " +++++ Type int64_t +++++ " << '\n';
         std::byte read[8];
         file.read(read, 8);
-        std::memcpy(&x, read, sizeof(int64_t));
+        x = static_cast<int64_t>(read[0]) << 56 |
+        static_cast<int64_t>(read[1]) << 48 |
+        static_cast<int64_t>(read[2]) << 40 |
+        static_cast<int64_t>(read[3]) << 32 |
+        static_cast<int64_t>(read[4]) << 24 |
+        static_cast<int64_t>(read[5]) << 16 |
+        static_cast<int64_t>(read[6]) << 8 |
+        static_cast<int64_t>(read[7]);
         return file;
     }
 
@@ -263,7 +324,14 @@ namespace serial{
         //std::cout << " +++++ Type uint64_t +++++ " << '\n';
         std::byte read[8];
         file.read(read, 8);
-        std::memcpy(&x, read, sizeof(uint64_t));
+        x = static_cast<uint64_t>(read[0]) << 56 |
+        static_cast<uint64_t>(read[1]) << 48 |
+        static_cast<uint64_t>(read[2]) << 40 |
+        static_cast<uint64_t>(read[3]) << 32 |
+        static_cast<uint64_t>(read[4]) << 24 |
+        static_cast<uint64_t>(read[5]) << 16 |
+        static_cast<uint64_t>(read[6]) << 8 |
+        static_cast<uint64_t>(read[7]);
         return file;
     }
 

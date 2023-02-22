@@ -7,6 +7,7 @@
 
 #include <iostream>	 		//A supprimer
 #include <cstring>			//Peut etre utiliser ?
+#include <bit>				//Peut etre utiliser ?
 
 #include <array>
 #include <map>
@@ -24,7 +25,7 @@ namespace serial
 	class OBinaryFile
 	{
 	private:
-		const std::string m_filename;
+		std::string m_filename;
 		FILE *m_file;
 
 	public:
