@@ -71,7 +71,7 @@ namespace serial
 	class IBinaryFile
 	{
 	private:
-		const std::string m_filename;
+		std::string m_filename;
 		FILE *m_file;
 
 	public:
@@ -148,7 +148,7 @@ namespace serial
 	{
 		//std::cout << " ----- Type map ----- " << '\n';
 		file << x.size();
-		for (const auto &p : x) {
+		for (auto &p : x) {
 			file << p.first << p.second;
 		}
 		return file;
@@ -160,7 +160,7 @@ namespace serial
 		//std::cout << " ----- Type set ----- " << '\n';
 		size_t size = x.size();
 		file << size;
-		for (const T& value : x) {
+		for (T& value : x) {
 			file << value;
 		}
 		return file;
@@ -203,10 +203,6 @@ namespace serial
 		
 		size_t array_size;
   		file >> array_size;
-
-		if(array_size!=N){
-			std::cout << " Error ! " << '\n';
-		}
 
 		for (auto& element : x) {
 			file >> element;

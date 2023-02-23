@@ -21,27 +21,23 @@ namespace serial{
         }
     }
 
-    /* OBinaryFile::OBinaryFile(OBinaryFile &&other) noexcept{
-       m_filename=other.m_filename;
-        m_file=other.m_file;
-
-        std::byte b[1024];
-        
-
-        
-
+    OBinaryFile::OBinaryFile(OBinaryFile &&other) noexcept{
+        m_filename = std::move(other.m_filename);
+        m_file = std::exchange(other.m_file, nullptr);
     }
 
     OBinaryFile& OBinaryFile::operator=(OBinaryFile &&other) noexcept{
-        
-        return *this;
-    }*/
+        std::swap (m_filename, other.m_filename);
+        std::swap (m_file, other.m_file);
+        return * this ;
+    }
 
 
     /**
      * @brief Closes the file
      */
 	OBinaryFile::~OBinaryFile(){
+        if(m_file==nullptr){return;}
         int ret = fclose(m_file);
         if (ret == EOF) { 
             fprintf(stderr, "Error while closing the file!\n");
@@ -80,10 +76,8 @@ namespace serial{
 	OBinaryFile &operator<<(OBinaryFile &file, uint16_t x){
         //std::cout << " ----- Type uint16_t ----- " << '\n';
         std::byte b[2];
-        uint16_t x_swap = (x << 8) | (x >> 8 );
-        std::memcpy(b, &x_swap , 2);
-        /*b[0] = static_cast<std::byte>((x >> 8) & 0xFF);
-        b[1] = static_cast<std::byte>(x & 0xFF);*/
+        b[0] = static_cast<std::byte>((x >> 8) & 0xFF);
+        b[1] = static_cast<std::byte>(x & 0xFF);
         file.write(b, 2);
         return file;
     }
@@ -216,20 +210,23 @@ namespace serial{
         }
     }
 
-   /* IBinaryFile::IBinaryFile(IBinaryFile &&other) noexcept{
-        
+    IBinaryFile::IBinaryFile(IBinaryFile &&other) noexcept{
+        m_filename = std::move(other.m_filename);
+        m_file = std::exchange(other.m_file, nullptr);
 
     }
 
     IBinaryFile& IBinaryFile::operator=(IBinaryFile &&other) noexcept{
-        
-    }*/
-
+        std::swap (m_filename, other.m_filename);
+        std::swap (m_file, other.m_file);
+        return * this ;
+    }
 
     /**
      * @brief Closes the file
      */
 	IBinaryFile::~IBinaryFile(){
+        if(m_file==nullptr){return;}
         int ret = fclose(m_file);
         if (ret == EOF) { 
             fprintf(stderr, "Error while closing the file!\n");
