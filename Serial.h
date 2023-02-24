@@ -5,9 +5,7 @@
 #include <cstdint>
 #include <cstdio>
 
-#include <iostream>	 		//A supprimer
 #include <cstring>			//Peut etre utiliser ?
-#include <bit>				//Peut etre utiliser ?
 
 #include <array>
 #include <map>
@@ -120,22 +118,16 @@ namespace serial
 	template <typename T>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::vector<T> &x)
 	{
-		//std::cout << " ----- Type vector ----- " << '\n';
-
-		size_t vector_size = x.size();
-		file << vector_size;
-        
+		file << x.size();   
 		for(auto& element : x){
 			file<<element;
 		}
-
 		return file;
 	}
 
 	template <typename T, std::size_t N>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::array<T, N> &x)
 	{
-		//std::cout << " ----- Type array ----- " << '\n';
         file << N;
 		for (auto& element : x) {
 			file << element;
@@ -146,7 +138,6 @@ namespace serial
 	template <typename K, typename V>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::map<K, V> &x)
 	{
-		//std::cout << " ----- Type map ----- " << '\n';
 		file << x.size();
 		for (auto &p : x) {
 			file << p.first << p.second;
@@ -157,9 +148,7 @@ namespace serial
 	template <typename T>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::set<T> &x)
 	{
-		//std::cout << " ----- Type set ----- " << '\n';
-		size_t size = x.size();
-		file << size;
+		file << x.size();
 		for (T& value : x) {
 			file << value;
 		}
@@ -183,27 +172,20 @@ namespace serial
 	template <typename T>
 	IBinaryFile &operator>>(IBinaryFile &file, std::vector<T> &x)
 	{
-		//std::cout << " +++++ Type vector +++++ " << '\n';
-		size_t vector_size;
-		file >> vector_size;
-
-		x.resize(vector_size);
-
+		size_t size;
+		file >> size;
+		x.resize(size);
 		for(auto& element : x){
 			file >> element;
 		}
-
 		return file;
 	}
 
 	template <typename T, std::size_t N>
 	IBinaryFile &operator>>(IBinaryFile &file, std::array<T, N> &x)
-	{		
-		//std::cout << " +++++ Type array +++++ " << '\n';
-		
-		size_t array_size;
-  		file >> array_size;
-
+	{
+		size_t size;
+  		file >> size;
 		for (auto& element : x) {
 			file >> element;
 		}

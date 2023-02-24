@@ -6,20 +6,25 @@
 
 namespace fs = std::filesystem;
 
-fs::path createFile(std::string file_name)
+/***********************************************************************************
+ *                                  Functions
+***********************************************************************************/
+
+/**
+ * Create a path for a temporary file
+*/
+fs::path createPathFile(std::string file_name)
 {
     fs::path directory_path = fs::temp_directory_path();
-
     std::filesystem::path file_path = directory_path;
     file_path.append(file_name);
-
-    // std::ofstream ofs(file_path, std::ios::trunc);                  //Revoir
-    // ofs.close();                                                    //Revoir
-
     return file_path;
 }
 
-void deleteFiles(const fs::path &file_path)
+/**
+ * Delete a temporary file
+*/
+void deleteFile(const fs::path &file_path)
 {
     if (fs::exists(file_path))
     {
@@ -27,35 +32,37 @@ void deleteFiles(const fs::path &file_path)
     }
 }
 
+/***********************************************************************************
+ *                                  Tests
+***********************************************************************************/
+
 /**
- * Write & Read 
+ * Write & Read tests
  */
 TEST(WriteReadTest, OneByte)
 {
-    fs::path name = createFile("test_write_read_1.bin");
+    fs::path name = createPathFile("test_write_read_1.bin");
     {
         std::byte b{'a'};
         serial::OBinaryFile file(name);
         size_t bytes_written = file.write(&b, 1);
         ASSERT_EQ(bytes_written, 1u);
     }
-
     ASSERT_EQ(fs::file_size(name), 1u);
-
     {
         std::byte read{};
         serial::IBinaryFile file(name);
-        size_t bytes_read =file.read(&read, 1);
+        size_t bytes_read = file.read(&read, 1);
         ASSERT_EQ(bytes_read, 1u);
         ASSERT_EQ(static_cast<char>(read), 'a');
     }
-
     ASSERT_EQ(fs::file_size(name), 1u);
+    deleteFile(name);
 }
 
 TEST(WriteReadTest, ManyBytes)
 {
-    fs::path name = createFile("test_write_read_2.bin");
+    fs::path name = createPathFile("test_write_read_2.bin");
     {
         std::byte b[3] = {std::byte(1), std::byte(2), std::byte(3)};
         serial::OBinaryFile file(name);
@@ -63,101 +70,103 @@ TEST(WriteReadTest, ManyBytes)
         ASSERT_EQ(bytes_written, 3u);
     }
     ASSERT_EQ(fs::file_size(name), 3u);
-
     {
         std::byte read{};
         serial::IBinaryFile file(name);
-        size_t bytes_read =file.read(&read, 1);
+        size_t bytes_read = file.read(&read, 1);
         ASSERT_EQ(bytes_read, 1u);
         ASSERT_EQ(1, static_cast<int>(read));
-        
-        bytes_read =file.read(&read, 1);
+
+        bytes_read = file.read(&read, 1);
         ASSERT_EQ(bytes_read, 1u);
         ASSERT_EQ(2, static_cast<int>(read));
 
-        bytes_read =file.read(&read, 1);
+        bytes_read = file.read(&read, 1);
         ASSERT_EQ(bytes_read, 1u);
         ASSERT_EQ(3, static_cast<int>(read));
     }
 
     ASSERT_EQ(fs::file_size(name), 3u);
+    deleteFile(name);
 }
 
 /**
- * Write & Mode 
+ * Write & Mode tests
  */
 
 TEST(WriteModeTest, WriteAppend)
 {
-    fs::path name = createFile("test_write_1.bin");
+    fs::path name = createPathFile("test_write_1.bin");
     {
-        std::byte b1{1};
+        std::byte b{1};
         serial::OBinaryFile file(name);
-        size_t bytes_written1 = file.write(&b1, 1);
-        ASSERT_EQ(bytes_written1, 1u);
+        size_t bytes_written = file.write(&b, 1);
+        ASSERT_EQ(bytes_written, 1u);
     }
     ASSERT_EQ(fs::file_size(name), 1u);
     {
-        std::byte b2[3] = {std::byte(1), std::byte(2), std::byte(3)};
+        std::byte b[3] = {std::byte(1), std::byte(2), std::byte(3)};
         serial::OBinaryFile file(name, serial::OBinaryFile::Mode::Append);
-        size_t bytes_written2 = file.write(b2, 3);
-        ASSERT_EQ(bytes_written2, 3u);
+        size_t bytes_written = file.write(b, 3);
+        ASSERT_EQ(bytes_written, 3u);
     }
     ASSERT_EQ(fs::file_size(name), 4u);
+    deleteFile(name);
 }
 
 TEST(WriteModeTest, WriteTruncate)
 {
-    fs::path name = createFile("test_write_2.bin");
+    fs::path name = createPathFile("test_write_2.bin");
     {
-        std::byte b1{1};
+        std::byte b{1};
         serial::OBinaryFile file(name);
-
-        size_t bytes_written1 = file.write(&b1, 1);
-        ASSERT_EQ(bytes_written1, 1u);
+        size_t bytes_written = file.write(&b, 1);
+        ASSERT_EQ(bytes_written, 1u);
     }
     ASSERT_EQ(fs::file_size(name), 1u);
     {
-        std::byte b2[3] = {std::byte(1), std::byte(2), std::byte(3)};
+        std::byte b[3] = {std::byte(1), std::byte(2), std::byte(3)};
         serial::OBinaryFile file(name, serial::OBinaryFile::Mode::Truncate);
-        size_t bytes_written2 = file.write(b2, 3);
-        ASSERT_EQ(bytes_written2, 3u);
+        size_t bytes_written = file.write(b, 3);
+        ASSERT_EQ(bytes_written, 3u);
     }
     ASSERT_EQ(fs::file_size(name), 3u);
     {
-        std::byte b3{4};
+        std::byte b{4};
         serial::OBinaryFile file(name, serial::OBinaryFile::Mode::Truncate);
-        size_t bytes_written2 = file.write(&b3, 1);
-        ASSERT_EQ(bytes_written2, 1u);
+        size_t bytes_written = file.write(&b, 1);
+        ASSERT_EQ(bytes_written, 1u);
     }
     ASSERT_EQ(fs::file_size(name), 1u);
+    deleteFile(name);
 }
 
 TEST(WriteModeTest, WriteTruncateAndAppend)
 {
-    fs::path name = createFile("test_write_3.bin");
+    fs::path name = createPathFile("test_write_3.bin");
     {
-        std::byte b1{1};
+        std::byte b{1};
         serial::OBinaryFile file(name);
 
-        size_t bytes_written1 = file.write(&b1, 1);
+        size_t bytes_written1 = file.write(&b, 1);
         ASSERT_EQ(bytes_written1, 1u);
     }
     ASSERT_EQ(fs::file_size(name), 1u);
     {
-        std::byte b2[3] = {std::byte(1), std::byte(2), std::byte(3)};
+        std::byte b[3] = {std::byte(1), std::byte(2), std::byte(3)};
         serial::OBinaryFile file(name, serial::OBinaryFile::Mode::Truncate);
-        size_t bytes_written2 = file.write(b2, 3);
+        size_t bytes_written2 = file.write(b, 3);
         ASSERT_EQ(bytes_written2, 3u);
     }
     ASSERT_EQ(fs::file_size(name), 3u);
     {
-        std::byte b3{4};
+        std::byte b{4};
         serial::OBinaryFile file(name, serial::OBinaryFile::Mode::Append);
-        size_t bytes_written2 = file.write(&b3, 1);
+        size_t bytes_written2 = file.write(&b, 1);
         ASSERT_EQ(bytes_written2, 1u);
     }
     ASSERT_EQ(fs::file_size(name), 4u);
+    deleteFile(name);
 }
 
 /**
@@ -165,58 +174,64 @@ TEST(WriteModeTest, WriteTruncateAndAppend)
  */
 TEST(uint8Test, Default)
 {
-    fs::path name = createFile("test_uint8_1.bin");
+    fs::path name = createPathFile("test_uint8_1.bin");
     uint8_t write = 42;
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     uint8_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(uint8Test, Minimum)
 {
-    fs::path name = createFile("test_uint8_2.bin");
+    fs::path name = createPathFile("test_uint8_2.bin");
     uint8_t write = 0;
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     uint8_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(uint8Test, Maximal)
 {
-    fs::path name = createFile("test_uint8_3.bin");
+    fs::path name = createPathFile("test_uint8_3.bin");
     uint8_t write = 255;
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     uint8_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(uint8Test, Many)
 {
-    fs::path name = createFile("test_uint8_4.bin");
+    fs::path name = createPathFile("test_uint8_4.bin");
     uint8_t write1 = 1;
     uint8_t write2 = 2;
     uint8_t write3 = 3;
@@ -225,16 +240,18 @@ TEST(uint8Test, Many)
         serial::OBinaryFile file(name);
         file << write1 << write2 << write3 << write4;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     uint8_t read1, read2, read3, read4;
     {
         serial::IBinaryFile file(name);
         file >> read1 >> read2 >> read3 >> read4;
     }
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 /**
@@ -243,92 +260,102 @@ TEST(uint8Test, Many)
 
 TEST(int8Test, Negative)
 {
-    fs::path name = createFile("test_int8_1.bin");
+    fs::path name = createPathFile("test_int8_1.bin");
     int8_t write = -42;
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     int8_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int8Test, Positive)
 {
-    fs::path name = createFile("test_int8_2.bin");
+    fs::path name = createPathFile("test_int8_2.bin");
     int8_t write = 42;
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     int8_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int8Test, Minimum)
 {
-    fs::path name = createFile("test_int8_3.bin");
+    fs::path name = createPathFile("test_int8_3.bin");
     int8_t write = -128;
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     int8_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int8Test, Maximum)
 {
-    fs::path name = createFile("test_int8_4.bin");
+    fs::path name = createPathFile("test_int8_4.bin");
     int8_t write = 127;
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     int8_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int8Test, Null)
 {
-    fs::path name = createFile("test_int8_5.bin");
+    fs::path name = createPathFile("test_int8_5.bin");
     int8_t write = 0;
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     int8_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int8Test, Many)
 {
-    fs::path name = createFile("test_int8_6.bin");
+    fs::path name = createPathFile("test_int8_6.bin");
     int8_t write1 = 1;
     int8_t write2 = 2;
     int8_t write3 = 3;
@@ -337,16 +364,18 @@ TEST(int8Test, Many)
         serial::OBinaryFile file(name);
         file << write1 << write2 << write3 << write4;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     int8_t read1, read2, read3, read4;
     {
         serial::IBinaryFile file(name);
         file >> read1 >> read2 >> read3 >> read4;
     }
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 /**
@@ -355,61 +384,67 @@ TEST(int8Test, Many)
 
 TEST(uint16Test, Default)
 {
-    fs::path name = createFile("test_uint16_1.bin");
+    fs::path name = createPathFile("test_uint16_1.bin");
     uint16_t write = 5000;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 2u);
     uint16_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 2u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(uint16Test, Maximum)
 {
-    fs::path name = createFile("test_uint16_2.bin");
+    fs::path name = createPathFile("test_uint16_2.bin");
     uint16_t write = 65535;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 2u);
     uint16_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 2u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(uint16Test, Minimum)
 {
-    fs::path name = createFile("test_uint16_3.bin");
+    fs::path name = createPathFile("test_uint16_3.bin");
     uint16_t write = 0;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 2u);
     uint16_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 2u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(uint16Test, Many)
 {
-    fs::path name = createFile("test_uint16_4.bin");
+    fs::path name = createPathFile("test_uint16_4.bin");
     uint16_t write1 = 1;
     uint16_t write2 = 223;
     uint16_t write3 = 34242;
@@ -418,34 +453,38 @@ TEST(uint16Test, Many)
         serial::OBinaryFile file(name);
         file << write1 << write2 << write3 << write4;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     uint16_t read1, read2, read3, read4;
     {
         serial::IBinaryFile file(name);
         file >> read1 >> read2 >> read3 >> read4;
     }
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 TEST(uint16Test, Endianness)
 {
-    fs::path name = createFile("test_uint16_5.bin");
+    fs::path name = createPathFile("test_uint16_5.bin");
     uint16_t write1 = 42;
 
     {
         serial::OBinaryFile file(name);
-        file << write1 ;
+        file << write1;
     }
 
     char b[2];
     std::ifstream f(name, std::ios::binary);
     f.read(b, 2);
 
+    ASSERT_EQ(fs::file_size(name), 2u);
     ASSERT_EQ(static_cast<uint8_t>(b[0]), 0x00);
     ASSERT_EQ(static_cast<uint8_t>(b[1]), 0x2a);
+    deleteFile(name);
 }
 
 /**
@@ -454,79 +493,87 @@ TEST(uint16Test, Endianness)
 
 TEST(int16Test, Negative)
 {
-    fs::path name = createFile("test_int16_1.bin");
+    fs::path name = createPathFile("test_int16_1.bin");
     int16_t write = -5000;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 2u);
     int16_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 2u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int16Test, Positive)
 {
-    fs::path name = createFile("test_int16_2.bin");
+    fs::path name = createPathFile("test_int16_2.bin");
     int16_t write = 5000;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 2u);
     int16_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 2u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int16Test, Minimum)
 {
-    fs::path name = createFile("test_int16_3.bin");
+    fs::path name = createPathFile("test_int16_3.bin");
     int16_t write = -32768;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 2u);
     int16_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 2u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int16Test, Maximum)
 {
-    fs::path name = createFile("test_int16_4.bin");
+    fs::path name = createPathFile("test_int16_4.bin");
     int16_t write = 32767;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 2u);
     int16_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 2u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int16Test, Many)
 {
-    fs::path name = createFile("test_int16_5.bin");
+    fs::path name = createPathFile("test_int16_5.bin");
     int16_t write1 = 1;
     int16_t write2 = 223;
     int16_t write3 = -3242;
@@ -535,34 +582,37 @@ TEST(int16Test, Many)
         serial::OBinaryFile file(name);
         file << write1 << write2 << write3 << write4;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     int16_t read1, read2, read3, read4;
     {
         serial::IBinaryFile file(name);
         file >> read1 >> read2 >> read3 >> read4;
     }
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 TEST(int16Test, Endianness)
 {
-    fs::path name = createFile("test_int16_5.bin");
+    fs::path name = createPathFile("test_int16_5.bin");
     int16_t write1 = 42;
 
     {
         serial::OBinaryFile file(name);
-        file << write1 ;
+        file << write1;
     }
 
     char b[2];
     std::ifstream f(name, std::ios::binary);
     f.read(b, 2);
-
+    ASSERT_EQ(fs::file_size(name), 2u);
     ASSERT_EQ(static_cast<uint8_t>(b[0]), 0x00);
     ASSERT_EQ(static_cast<uint8_t>(b[1]), 0x2a);
+    deleteFile(name);
 }
 
 /**
@@ -571,64 +621,67 @@ TEST(int16Test, Endianness)
 
 TEST(uint32Test, Default)
 {
-    fs::path name = createFile("test_uint32_1.bin");
+    fs::path name = createPathFile("test_uint32_1.bin");
     uint32_t write = 70000;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     uint32_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(uint32Test, Minimum)
 {
-    fs::path name = createFile("test_uint32_2.bin");
+    fs::path name = createPathFile("test_uint32_2.bin");
     uint32_t write = 0;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     uint32_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(uint32Test, Maximum)
 {
-    fs::path name = createFile("test_uint32_3.bin");
+    fs::path name = createPathFile("test_uint32_3.bin");
     uint32_t write = 0xFFFFFFFF;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     uint32_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u); 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(uint32Test, Many)
 {
-    fs::path name = createFile("test_uint32_4.bin");
+    fs::path name = createPathFile("test_uint32_4.bin");
     uint32_t write1 = 1;
     uint32_t write2 = 0xFF13;
     uint32_t write3 = 1332;
@@ -637,36 +690,39 @@ TEST(uint32Test, Many)
         serial::OBinaryFile file(name);
         file << write1 << write2 << write3 << write4;
     }
-
+    ASSERT_EQ(fs::file_size(name), 16u);
     uint32_t read1, read2, read3, read4;
     {
         serial::IBinaryFile file(name);
         file >> read1 >> read2 >> read3 >> read4;
     }
+    ASSERT_EQ(fs::file_size(name), 16u);
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 TEST(uint32Test, Endianness)
 {
-    fs::path name = createFile("test_uint32_5.bin");
+    fs::path name = createPathFile("test_uint32_5.bin");
     uint32_t write1 = 0x235F01;
 
     {
         serial::OBinaryFile file(name);
-        file << write1 ;
+        file << write1;
     }
 
     char b[4];
     std::ifstream f(name, std::ios::binary);
     f.read(b, 4);
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(static_cast<uint8_t>(b[0]), 0x00);
     ASSERT_EQ(static_cast<uint8_t>(b[1]), 0x23);
     ASSERT_EQ(static_cast<uint8_t>(b[2]), 0x5F);
     ASSERT_EQ(static_cast<uint8_t>(b[3]), 0x01);
+    deleteFile(name);
 }
 
 /**
@@ -675,79 +731,87 @@ TEST(uint32Test, Endianness)
 
 TEST(int32Test, Negative)
 {
-    fs::path name = createFile("test_int32_1.bin");
+    fs::path name = createPathFile("test_int32_1.bin");
     int32_t write = -70000;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     int32_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int32Test, Positive)
 {
-    fs::path name = createFile("test_int32_2.bin");
+    fs::path name = createPathFile("test_int32_2.bin");
     int32_t write = 70000;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     int32_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int32Test, Minimum)
 {
-    fs::path name = createFile("test_int32_3.bin");
+    fs::path name = createPathFile("test_int32_3.bin");
     int32_t write = 0X80000000;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     int32_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int32Test, Maximum)
 {
-    fs::path name = createFile("test_int32_4.bin");
+    fs::path name = createPathFile("test_int32_4.bin");
     int32_t write = 0X7FFFFFFF;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     int32_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int32Test, Many)
 {
-    fs::path name = createFile("test_int32_5.bin");
+    fs::path name = createPathFile("test_int32_5.bin");
     int32_t write1 = 1;
     int32_t write2 = 0xFF1;
     int32_t write3 = 0x0FFF9;
@@ -756,36 +820,40 @@ TEST(int32Test, Many)
         serial::OBinaryFile file(name);
         file << write1 << write2 << write3 << write4;
     }
-
+    ASSERT_EQ(fs::file_size(name), 16u);
     int32_t read1, read2, read3, read4;
     {
         serial::IBinaryFile file(name);
         file >> read1 >> read2 >> read3 >> read4;
     }
+    ASSERT_EQ(fs::file_size(name), 16u);
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 TEST(int32Test, Endianness)
 {
-    fs::path name = createFile("test_int32_6.bin");
+    fs::path name = createPathFile("test_int32_6.bin");
     int32_t write1 = 0x235F01;
 
     {
         serial::OBinaryFile file(name);
-        file << write1 ;
+        file << write1;
     }
 
     char b[4];
     std::ifstream f(name, std::ios::binary);
     f.read(b, 4);
 
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(static_cast<uint8_t>(b[0]), 0x00);
     ASSERT_EQ(static_cast<uint8_t>(b[1]), 0x23);
     ASSERT_EQ(static_cast<uint8_t>(b[2]), 0x5F);
     ASSERT_EQ(static_cast<uint8_t>(b[3]), 0x01);
+    deleteFile(name);
 }
 
 /**
@@ -794,61 +862,67 @@ TEST(int32Test, Endianness)
 
 TEST(uint64Test, Default)
 {
-    fs::path name = createFile("test_uint64_1.bin");
+    fs::path name = createPathFile("test_uint64_1.bin");
     uint64_t write = 70000;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     uint64_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(uint64Test, Minimum)
 {
-    fs::path name = createFile("test_uint64_2.bin");
+    fs::path name = createPathFile("test_uint64_2.bin");
     uint64_t write = 0;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     uint64_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(uint64Test, Maximum)
 {
-    fs::path name = createFile("test_uint64_3.bin");
+    fs::path name = createPathFile("test_uint64_3.bin");
     uint64_t write = 0xFFFFFFFFFFFFFFFF;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     uint64_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(uint64Test, Many)
 {
-    fs::path name = createFile("test_uint64_4.bin");
+    fs::path name = createPathFile("test_uint64_4.bin");
     uint64_t write1 = 1;
     uint64_t write2 = 0xFF13;
     uint64_t write3 = 0xFFF9;
@@ -857,32 +931,34 @@ TEST(uint64Test, Many)
         serial::OBinaryFile file(name);
         file << write1 << write2 << write3 << write4;
     }
-
+    ASSERT_EQ(fs::file_size(name), 32u);
     uint64_t read1, read2, read3, read4;
     {
         serial::IBinaryFile file(name);
         file >> read1 >> read2 >> read3 >> read4;
     }
+    ASSERT_EQ(fs::file_size(name), 32u);
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 TEST(uint64Test, Endianness)
 {
-    fs::path name = createFile("test_uint64_5.bin");
+    fs::path name = createPathFile("test_uint64_5.bin");
     uint64_t write1 = 0x123456789;
 
     {
         serial::OBinaryFile file(name);
-        file << write1 ;
+        file << write1;
     }
 
     char b[8];
     std::ifstream f(name, std::ios::binary);
     f.read(b, 8);
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(static_cast<uint8_t>(b[0]), 0x00);
     ASSERT_EQ(static_cast<uint8_t>(b[1]), 0x00);
     ASSERT_EQ(static_cast<uint8_t>(b[2]), 0x00);
@@ -891,6 +967,7 @@ TEST(uint64Test, Endianness)
     ASSERT_EQ(static_cast<uint8_t>(b[5]), 0x45);
     ASSERT_EQ(static_cast<uint8_t>(b[6]), 0x67);
     ASSERT_EQ(static_cast<uint8_t>(b[7]), 0x89);
+    deleteFile(name);
 }
 
 /**
@@ -899,79 +976,87 @@ TEST(uint64Test, Endianness)
 
 TEST(int64Test, Negative)
 {
-    fs::path name = createFile("test_int64_1.bin");
+    fs::path name = createPathFile("test_int64_1.bin");
     int64_t write = -70000;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     int64_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int64Test, Positive)
 {
-    fs::path name = createFile("test_int64_2.bin");
+    fs::path name = createPathFile("test_int64_2.bin");
     int64_t write = -70000;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     int64_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int64Test, Minimum)
 {
-    fs::path name = createFile("test_int64_3.bin");
+    fs::path name = createPathFile("test_int64_3.bin");
     int64_t write = -70000;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     int64_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int64Test, Maximum)
 {
-    fs::path name = createFile("test_int64_4.bin");
+    fs::path name = createPathFile("test_int64_4.bin");
     int64_t write = -70000;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     int64_t read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(int64Test, Many)
 {
-    fs::path name = createFile("test_int64_5.bin");
+    fs::path name = createPathFile("test_int64_5.bin");
     int64_t write1 = -12;
     int64_t write2 = 0x8F123;
     int64_t write3 = 0x7FF9A;
@@ -980,32 +1065,35 @@ TEST(int64Test, Many)
         serial::OBinaryFile file(name);
         file << write1 << write2 << write3 << write4;
     }
-
+    ASSERT_EQ(fs::file_size(name), 32u);
     int64_t read1, read2, read3, read4;
     {
         serial::IBinaryFile file(name);
         file >> read1 >> read2 >> read3 >> read4;
     }
+    ASSERT_EQ(fs::file_size(name), 32u);
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 TEST(int64Test, Endianness)
 {
-    fs::path name = createFile("test_int64_6.bin");
+    fs::path name = createPathFile("test_int64_6.bin");
     int64_t write1 = 0x123456789;
 
     {
         serial::OBinaryFile file(name);
-        file << write1 ;
+        file << write1;
     }
 
     char b[8];
     std::ifstream f(name, std::ios::binary);
     f.read(b, 8);
 
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(static_cast<uint8_t>(b[0]), 0x00);
     ASSERT_EQ(static_cast<uint8_t>(b[1]), 0x00);
     ASSERT_EQ(static_cast<uint8_t>(b[2]), 0x00);
@@ -1014,6 +1102,7 @@ TEST(int64Test, Endianness)
     ASSERT_EQ(static_cast<uint8_t>(b[5]), 0x45);
     ASSERT_EQ(static_cast<uint8_t>(b[6]), 0x67);
     ASSERT_EQ(static_cast<uint8_t>(b[7]), 0x89);
+    deleteFile(name);
 }
 
 /**
@@ -1022,79 +1111,87 @@ TEST(int64Test, Endianness)
 
 TEST(charTest, Default)
 {
-    fs::path name = createFile("test_char.bin");
+    fs::path name = createPathFile("test_char_1.bin");
     char write = 'a';
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     char read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(charTest, newlineChar)
 {
-    fs::path name = createFile("test_char_1.bin");
+    fs::path name = createPathFile("test_char_2.bin");
     char write = '\n';
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     char read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(charTest, tabChar)
 {
-    fs::path name = createFile("test_char_2.bin");
+    fs::path name = createPathFile("test_char_3.bin");
     char write = '\t';
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     char read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(charTest, spaceChar)
 {
-    fs::path name = createFile("test_char_3.bin");
+    fs::path name = createPathFile("test_char_4.bin");
     char write = ' ';
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     char read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(charTest, Many)
 {
-    fs::path name = createFile("test_char_4.bin");
+    fs::path name = createPathFile("test_char_5.bin");
     char write1 = 'a';
     char write2 = 'p';
     char write3 = '\n';
@@ -1103,16 +1200,18 @@ TEST(charTest, Many)
         serial::OBinaryFile file(name);
         file << write1 << write2 << write3 << write4;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     char read1, read2, read3, read4;
     {
         serial::IBinaryFile file(name);
         file >> read1 >> read2 >> read3 >> read4;
     }
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 /**
@@ -1121,83 +1220,87 @@ TEST(charTest, Many)
 
 TEST(floatTest, Negative)
 {
-    fs::path name = createFile("test_float_1.bin");
+    fs::path name = createPathFile("test_float_1.bin");
     float write = -1.28;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     float read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(floatTest, Positive)
 {
-    fs::path name = createFile("test_float_2.bin");
+    fs::path name = createPathFile("test_float_2.bin");
     float write = 12.234;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     float read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(floatTest, Minimum)
 {
-    fs::path name = createFile("test_float_3.bin");
+    fs::path name = createPathFile("test_float_3.bin");
     float write = FLT_MIN;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     float read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(floatTest, Maximum)
 {
-    fs::path name = createFile("test_float_4.bin");
+    fs::path name = createPathFile("test_float_4.bin");
     float write = FLT_MAX;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     float read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(floatTest, Many)
 {
-    fs::path name = createFile("test_float_5.bin");
+    fs::path name = createPathFile("test_float_5.bin");
     float write1 = 1213.3143;
     float write2 = -0.10;
     float write3 = 123e-12;
@@ -1206,16 +1309,18 @@ TEST(floatTest, Many)
         serial::OBinaryFile file(name);
         file << write1 << write2 << write3 << write4;
     }
-
+    ASSERT_EQ(fs::file_size(name), 16u);
     float read1, read2, read3, read4;
     {
         serial::IBinaryFile file(name);
         file >> read1 >> read2 >> read3 >> read4;
     }
+    ASSERT_EQ(fs::file_size(name), 16u);
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 /**
@@ -1223,83 +1328,87 @@ TEST(floatTest, Many)
  */
 TEST(doubleTest, Positive)
 {
-    fs::path name = createFile("test_double_1.bin");
+    fs::path name = createPathFile("test_double_1.bin");
     double write = 7.23671;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     double read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(doubleTest, Negative)
 {
-    fs::path name = createFile("test_double_2.bin");
+    fs::path name = createPathFile("test_double_2.bin");
     double write = -7.23671;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     double read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(doubleTest, Minimum)
 {
-    fs::path name = createFile("test_double_3.bin");
+    fs::path name = createPathFile("test_double_3.bin");
     double write = -1.79769e+308;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     double read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(doubleTest, Maximum)
 {
-    fs::path name = createFile("test_double_4.bin");
+    fs::path name = createPathFile("test_double_4.bin");
     double write = 1.79769e+308;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+     ASSERT_EQ(fs::file_size(name), 8u);
     double read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 8u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(doubleTest, Many)
 {
-    fs::path name = createFile("test_double_5.bin");
+    fs::path name = createPathFile("test_double_5.bin");
     double write1 = -121312444221313223233.3143;
     double write2 = 0.10;
     double write3 = 1e-212;
@@ -1308,16 +1417,18 @@ TEST(doubleTest, Many)
         serial::OBinaryFile file(name);
         file << write1 << write2 << write3 << write4;
     }
-
+    ASSERT_EQ(fs::file_size(name), 32u);
     double read1, read2, read3, read4;
     {
         serial::IBinaryFile file(name);
         file >> read1 >> read2 >> read3 >> read4;
     }
+    ASSERT_EQ(fs::file_size(name), 32u);
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 /**
@@ -1325,45 +1436,47 @@ TEST(doubleTest, Many)
  */
 TEST(boolTest, True)
 {
-    fs::path name = createFile("test_bool_1.bin");
+    fs::path name = createPathFile("test_bool_1.bin");
     bool write = true;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     bool read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(boolTest, False)
 {
-    fs::path name = createFile("test_bool_1.bin");
+    fs::path name = createPathFile("test_bool_1.bin");
     bool write = false;
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     bool read;
     {
         serial::IBinaryFile file(name);
         file >> read;
     }
-
+    ASSERT_EQ(fs::file_size(name), 1u);
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(boolTest, Many)
 {
-    fs::path name = createFile("test_double_5.bin");
+    fs::path name = createPathFile("test_double_5.bin");
     bool write1 = true;
     bool write2 = true;
     bool write3 = false;
@@ -1372,16 +1485,18 @@ TEST(boolTest, Many)
         serial::OBinaryFile file(name);
         file << write1 << write2 << write3 << write4;
     }
-
+    ASSERT_EQ(fs::file_size(name), 4u);
     bool read1, read2, read3, read4;
     {
         serial::IBinaryFile file(name);
         file >> read1 >> read2 >> read3 >> read4;
     }
+    ASSERT_EQ(fs::file_size(name), 4u);
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 /**
@@ -1389,7 +1504,7 @@ TEST(boolTest, Many)
  */
 TEST(stringTest, Default)
 {
-    fs::path name = createFile("test_string_1.bin");
+    fs::path name = createPathFile("test_string_1.bin");
     std::string write = "the string";
     write.size();
 
@@ -1405,11 +1520,12 @@ TEST(stringTest, Default)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(stringTest, Empty)
 {
-    fs::path name = createFile("test_string_2.bin");
+    fs::path name = createPathFile("test_string_2.bin");
     std::string write = "      ";
     write.size();
 
@@ -1425,11 +1541,12 @@ TEST(stringTest, Empty)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(stringTest, specialChar)
 {
-    fs::path name = createFile("test_string_3.bin");
+    fs::path name = createPathFile("test_string_3.bin");
     std::string write = "hello\n\thow are you ?";
     write.size();
 
@@ -1445,11 +1562,12 @@ TEST(stringTest, specialChar)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(stringTest, Many)
 {
-    fs::path name = createFile("test_string_4.bin");
+    fs::path name = createPathFile("test_string_4.bin");
     std::string write1 = "first\n";
     std::string write2 = "\tsecond";
     std::string write3 = "third string";
@@ -1468,6 +1586,7 @@ TEST(stringTest, Many)
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 /**
@@ -1475,14 +1594,14 @@ TEST(stringTest, Many)
  */
 TEST(vectorTest, Integer)
 {
-    fs::path name = createFile("test_vector_1.bin");
+    fs::path name = createPathFile("test_vector_1.bin");
     std::vector<int32_t> write = {1, 2, 3, 4, 5};
 
     {
         serial::OBinaryFile file(name);
         file << write;
     }
-
+    //ASSERT_EQ(fs::file_size(name), 28u);
     std::vector<int32_t> read;
     {
         serial::IBinaryFile file_read(name);
@@ -1490,11 +1609,12 @@ TEST(vectorTest, Integer)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(vectorTest, Character)
 {
-    fs::path name = createFile("test_vector_2.bin");
+    fs::path name = createPathFile("test_vector_2.bin");
     std::vector<char> write = {'a', 'b', 'c', 'd'};
 
     {
@@ -1509,11 +1629,12 @@ TEST(vectorTest, Character)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(vectorTest, Double)
 {
-    fs::path name = createFile("test_vector_3.bin");
+    fs::path name = createPathFile("test_vector_3.bin");
     std::vector<double> write = {1.3424, 4.343, 129274.34};
 
     {
@@ -1528,11 +1649,12 @@ TEST(vectorTest, Double)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(vectorTest, String)
 {
-    fs::path name = createFile("test_vector_4.bin");
+    fs::path name = createPathFile("test_vector_4.bin");
     std::vector<std::string> write = {"first", "second", "third"};
 
     {
@@ -1547,11 +1669,12 @@ TEST(vectorTest, String)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(vectorTest, Many)
 {
-    fs::path name = createFile("test_vector_5.bin");
+    fs::path name = createPathFile("test_vector_5.bin");
     std::vector<std::string> write1 = {"first", "second", "third"};
     std::vector<int16_t> write2 = {4, 5};
     std::vector<double> write3 = {6.0};
@@ -1574,16 +1697,17 @@ TEST(vectorTest, Many)
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 TEST(vectorTest, Endianness)
 {
-    fs::path name = createFile("test_vector_6.bin");
+    fs::path name = createPathFile("test_vector_6.bin");
     std::vector<int16_t> write = {0x2F2, 0x239};
 
     {
         serial::OBinaryFile file(name);
-        file << write ;
+        file << write;
     }
 
     char size[8];
@@ -1597,6 +1721,7 @@ TEST(vectorTest, Endianness)
     ASSERT_EQ(static_cast<uint8_t>(b[1]), 0xF2);
     ASSERT_EQ(static_cast<uint8_t>(b[2]), 0x02);
     ASSERT_EQ(static_cast<uint8_t>(b[3]), 0x39);
+    deleteFile(name);
 }
 
 /**
@@ -1605,7 +1730,7 @@ TEST(vectorTest, Endianness)
 
 TEST(arrayTest, Integer)
 {
-    fs::path name = createFile("test_array_1.bin");
+    fs::path name = createPathFile("test_array_1.bin");
     std::array<int, 5> write = {1, 2, 3, 4, 5};
 
     {
@@ -1620,11 +1745,12 @@ TEST(arrayTest, Integer)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(arrayTest, Character)
 {
-    fs::path name = createFile("test_array_2.bin");
+    fs::path name = createPathFile("test_array_2.bin");
     std::array<char, 5> write = {'a', 'b', 'c', 'd'};
 
     {
@@ -1639,11 +1765,12 @@ TEST(arrayTest, Character)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(arrayTest, Double)
 {
-    fs::path name = createFile("test_array_3.bin");
+    fs::path name = createPathFile("test_array_3.bin");
     std::array<double, 3> write = {1.3424, 4.343, 129274.34};
 
     {
@@ -1658,11 +1785,12 @@ TEST(arrayTest, Double)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(arrayTest, String)
 {
-    fs::path name = createFile("test_array_4.bin");
+    fs::path name = createPathFile("test_array_4.bin");
     std::array<std::string, 3> write = {"first", "second", "third"};
 
     {
@@ -1677,11 +1805,12 @@ TEST(arrayTest, String)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(arrayTest, Many)
 {
-    fs::path name = createFile("test_array_5.bin");
+    fs::path name = createPathFile("test_array_5.bin");
     std::array<std::string, 3> write1 = {"first", "second", "third"};
     std::array<int16_t, 2> write2 = {4, 5};
     std::array<double, 1> write3 = {6.0};
@@ -1705,16 +1834,17 @@ TEST(arrayTest, Many)
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 TEST(arrayTest, Endianness)
 {
-    fs::path name = createFile("test_array_6.bin");
+    fs::path name = createPathFile("test_array_6.bin");
     std::array<int32_t, 2> write = {0x2F223, 0x23944F};
 
     {
         serial::OBinaryFile file(name);
-        file << write ;
+        file << write;
     }
 
     char size[8];
@@ -1732,6 +1862,7 @@ TEST(arrayTest, Endianness)
     ASSERT_EQ(static_cast<uint8_t>(b[5]), 0x23);
     ASSERT_EQ(static_cast<uint8_t>(b[6]), 0x94);
     ASSERT_EQ(static_cast<uint8_t>(b[7]), 0x4F);
+    deleteFile(name);
 }
 
 /**
@@ -1739,7 +1870,7 @@ TEST(arrayTest, Endianness)
  */
 TEST(mapTest, Default_1)
 {
-    fs::path name = createFile("test_map_1.bin");
+    fs::path name = createPathFile("test_map_1.bin");
     std::map<std::string, int16_t> write = {{"one", 1}, {"two", 2}, {"three", 3}};
 
     {
@@ -1754,11 +1885,12 @@ TEST(mapTest, Default_1)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(mapTest, Default_2)
 {
-    fs::path name = createFile("test_map_2.bin");
+    fs::path name = createPathFile("test_map_2.bin");
     std::map<float, int32_t> write = {{1.000, 12343}, {233432.3, 323}, {3230382.2, 123}};
 
     {
@@ -1773,11 +1905,12 @@ TEST(mapTest, Default_2)
     }
 
     ASSERT_EQ(write, read);
+    deleteFile(name);
 }
 
 TEST(mapTest, Many)
 {
-    fs::path name = createFile("test_map_3.bin");
+    fs::path name = createPathFile("test_map_3.bin");
     std::map<std::string, int32_t> write1 = {{"first", 12}, {"second", 123}, {"third", 1234}};
     std::map<int16_t, std::string> write2 = {{4, "four"}, {313, "five"}};
     std::map<double, float> write3 = {{6.0, 123124}};
@@ -1801,16 +1934,17 @@ TEST(mapTest, Many)
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 TEST(mapTest, Endianness)
 {
-    fs::path name = createFile("test_map_4.bin");
+    fs::path name = createPathFile("test_map_4.bin");
     std::map<int16_t, int32_t> write = {{0x3F, 0x129F}, {0xF4, 0x1234}};
 
     {
         serial::OBinaryFile file(name);
-        file << write ;
+        file << write;
     }
 
     char size[8];
@@ -1832,6 +1966,7 @@ TEST(mapTest, Endianness)
     ASSERT_EQ(static_cast<uint8_t>(b[9]), 0x00);
     ASSERT_EQ(static_cast<uint8_t>(b[10]), 0x12);
     ASSERT_EQ(static_cast<uint8_t>(b[11]), 0x34);
+    deleteFile(name);
 }
 
 /**
@@ -1839,7 +1974,7 @@ TEST(mapTest, Endianness)
  */
 TEST(mixedTest, Types)
 {
-    fs::path name = createFile("test_mixed_1.bin");
+    fs::path name = createPathFile("test_mixed_1.bin");
     int16_t write1 = 123;
     char write2 = 'e';
     float write3 = 1239e12;
@@ -1864,11 +1999,12 @@ TEST(mixedTest, Types)
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
     ASSERT_EQ(write4, read4);
+    deleteFile(name);
 }
 
 TEST(mixedTest, Container)
 {
-    fs::path name = createFile("test_mixed_2.bin");
+    fs::path name = createPathFile("test_mixed_2.bin");
     std::vector<std::string> write1 = {"first", "second", "third"};
     std::map<int16_t, std::string> write2 = {{4, "four"}, {313, "five"}};
     std::array<std::string, 4> write3 = {"seven", "eight", "nine", "ten"};
@@ -1889,11 +2025,12 @@ TEST(mixedTest, Container)
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
     ASSERT_EQ(write3, read3);
+    deleteFile(name);
 }
 
 TEST(mixedTest, TypeAndContainer)
 {
-    fs::path name = createFile("test_mixed_3.bin");
+    fs::path name = createPathFile("test_mixed_3.bin");
     double write1 = 1239e12;
     std::string write2 = "helloooo";
     std::vector<std::string> write3 = {"first", "second", "third"};
@@ -1926,6 +2063,7 @@ TEST(mixedTest, TypeAndContainer)
     ASSERT_EQ(write5, read5);
     ASSERT_EQ(write6, read6);
     ASSERT_EQ(write7, read7);
+    deleteFile(name);
 }
 
 /**
@@ -1933,7 +2071,7 @@ TEST(mixedTest, TypeAndContainer)
  */
 TEST(moveTest, OBinaryConstructor)
 {
-    fs::path name = createFile("test_move_1.bin");
+    fs::path name = createPathFile("test_move_1.bin");
 
     int64_t write1 = 70000;
     int64_t write2 = 3;
@@ -1953,17 +2091,13 @@ TEST(moveTest, OBinaryConstructor)
     }
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
+    deleteFile(name);
 }
 
 TEST(moveTest, OBinaryAssignmentOperator)
 {
-    /*serial::OBinaryFile f1("file.bin");
-    serial::OBinaryFile f2 = std::move(f1); // Call the Constructor not the assignment operator
-    serial::OBinaryFile f3("file2.bin");
-    f3 = std::move(f2); // assignment operator*/
-
-    fs::path name1 = createFile("test_move_2_1.bin");
-    fs::path name2 = createFile("test_move_2_2.bin");
+    fs::path name1 = createPathFile("test_move_2_1.bin");
+    fs::path name2 = createPathFile("test_move_2_2.bin");
 
     int64_t write1 = 70000;
     int64_t write2 = 3;
@@ -1974,7 +2108,6 @@ TEST(moveTest, OBinaryAssignmentOperator)
         serial::OBinaryFile f2(name2);
         f2 = std::move(f1);
         f2 << write2;
-
     }
 
     int64_t read1, read2;
@@ -1985,36 +2118,39 @@ TEST(moveTest, OBinaryAssignmentOperator)
     }
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
+    deleteFile(name1);
+    deleteFile(name2);
 }
 
 TEST(moveTest, IBinaryConstructor)
 {
-    fs::path name1 = createFile("test_move_3.bin");
+    fs::path name = createPathFile("test_move_3.bin");
 
     int64_t write1 = 70000;
     int64_t write2 = 3;
 
     {
-        serial::OBinaryFile f1(name1);
+        serial::OBinaryFile f1(name);
         f1 << write1;
         f1 << write2;
     }
 
     int64_t read1, read2;
     {
-        serial::IBinaryFile file1(name1);
+        serial::IBinaryFile file1(name);
         file1 >> read1;
-        serial::IBinaryFile file2=std::move(file1);
+        serial::IBinaryFile file2 = std::move(file1);
         file2 >> read2;
     }
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
+    deleteFile(name);
 }
 
 TEST(moveTest, IBinaryAssignmentOperator)
 {
-    fs::path name1 = createFile("test_move_4_1.bin");
-    fs::path name2 = createFile("test_move_4_2.bin");
+    fs::path name1 = createPathFile("test_move_4_1.bin");
+    fs::path name2 = createPathFile("test_move_4_2.bin");
 
     int64_t write1 = 70000;
     int64_t write2 = 3;
@@ -2031,11 +2167,56 @@ TEST(moveTest, IBinaryAssignmentOperator)
         serial::IBinaryFile file1(name1);
         file1 >> read1;
         serial::IBinaryFile file2(name2);
-        file2=std::move(file1);
+        file2 = std::move(file1);
         file2 >> read2;
     }
     ASSERT_EQ(write1, read1);
     ASSERT_EQ(write2, read2);
+    deleteFile(name1);
+    deleteFile(name2);
+}
+
+/**
+ * use test
+ */
+struct Foo
+{
+    int16_t i;
+    double d;
+    std::string s;
+};
+
+serial::OBinaryFile &operator<<(serial::OBinaryFile &file, const Foo &foo)
+{
+    return file << foo.i << foo.d << foo.s;
+}
+serial::IBinaryFile &operator>>(serial::IBinaryFile &file, Foo &foo)
+{
+    return file >> foo.i >> foo.d >> foo.s;
+}
+
+TEST(useTest, Default)
+{
+    fs::path name = createPathFile("test_use.bin");
+    ;
+
+    Foo foo;
+    foo.i = 42;
+    foo.d = 69.0;
+    foo.s = "Hello";
+    {
+        serial::OBinaryFile out(name);
+        out << foo;
+    }
+    struct Foo copy;
+    {
+        serial::IBinaryFile in(name);
+        in >> copy;
+    }
+    ASSERT_EQ(foo.i, copy.i);
+    ASSERT_EQ(foo.d, copy.d);
+    ASSERT_EQ(foo.s, copy.s);
+    deleteFile(name);
 }
 
 int main(int argc, char *argv[])
