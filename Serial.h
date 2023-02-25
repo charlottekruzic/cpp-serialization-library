@@ -4,8 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
-
-#include <cstring>			//Peut etre utiliser ?
+#include <cstring>
 
 #include <array>
 #include <map>
@@ -118,9 +117,10 @@ namespace serial
 	template <typename T>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::vector<T> &x)
 	{
-		file << x.size();   
-		for(auto& element : x){
-			file<<element;
+		file << x.size();
+		for (auto &element : x)
+		{
+			file << element;
 		}
 		return file;
 	}
@@ -128,8 +128,9 @@ namespace serial
 	template <typename T, std::size_t N>
 	OBinaryFile &operator<<(OBinaryFile &file, const std::array<T, N> &x)
 	{
-        file << N;
-		for (auto& element : x) {
+		file << N;
+		for (auto &element : x)
+		{
 			file << element;
 		}
 		return file;
@@ -139,7 +140,8 @@ namespace serial
 	OBinaryFile &operator<<(OBinaryFile &file, const std::map<K, V> &x)
 	{
 		file << x.size();
-		for (auto &p : x) {
+		for (auto &p : x)
+		{
 			file << p.first << p.second;
 		}
 		return file;
@@ -149,7 +151,8 @@ namespace serial
 	OBinaryFile &operator<<(OBinaryFile &file, const std::set<T> &x)
 	{
 		file << x.size();
-		for (T& value : x) {
+		for (T &value : x)
+		{
 			file << value;
 		}
 		return file;
@@ -175,7 +178,8 @@ namespace serial
 		size_t size;
 		file >> size;
 		x.resize(size);
-		for(auto& element : x){
+		for (auto &element : x)
+		{
 			file >> element;
 		}
 		return file;
@@ -185,8 +189,9 @@ namespace serial
 	IBinaryFile &operator>>(IBinaryFile &file, std::array<T, N> &x)
 	{
 		size_t size;
-  		file >> size;
-		for (auto& element : x) {
+		file >> size;
+		for (auto &element : x)
+		{
 			file >> element;
 		}
 		return file;
@@ -197,7 +202,8 @@ namespace serial
 	{
 		size_t size;
 		file >> size;
-		for (size_t i = 0; i < size; ++i) {
+		for (size_t i = 0; i < size; ++i)
+		{
 			K key;
 			V value;
 			file >> key >> value;
@@ -211,7 +217,8 @@ namespace serial
 	{
 		size_t size;
 		file >> size;
-		for (size_t i = 0; i < size; ++i) {
+		for (size_t i = 0; i < size; ++i)
+		{
 			T value;
 			file >> value;
 			x.insert(std::move(value));
