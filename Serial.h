@@ -22,7 +22,6 @@ namespace serial
 	class OBinaryFile
 	{
 	private:
-		std::string m_filename;
 		FILE *m_file;
 
 	public:
@@ -68,7 +67,6 @@ namespace serial
 	class IBinaryFile
 	{
 	private:
-		std::string m_filename;
 		FILE *m_file;
 
 	public:

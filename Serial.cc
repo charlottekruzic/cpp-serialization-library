@@ -14,7 +14,6 @@ namespace serial
      * error.
      */
     OBinaryFile::OBinaryFile(const std::string &filename, Mode mode)
-    : m_filename(filename)
     {
         const char *opening_mode = (mode == Mode::Append ? "a" : "w");
         m_file = (fopen(filename.c_str(), opening_mode));
@@ -28,8 +27,7 @@ namespace serial
      * @brief Move constructor
      */
     OBinaryFile::OBinaryFile(OBinaryFile &&other) noexcept
-    : m_filename(std::move(other.m_filename))
-    , m_file(std::exchange(other.m_file, nullptr))
+    : m_file(std::exchange(other.m_file, nullptr))
     {
     }
 
@@ -38,7 +36,6 @@ namespace serial
      */
     OBinaryFile &OBinaryFile::operator=(OBinaryFile &&other) noexcept
     {
-        std::swap(m_filename, other.m_filename);
         std::swap(m_file, other.m_file);
         return *this;
     }
@@ -77,8 +74,7 @@ namespace serial
      * error.
      */
     IBinaryFile::IBinaryFile(const std::string &filename)
-    : m_filename(filename)
-    , m_file(fopen(filename.c_str(), "r"))
+    : m_file(fopen(filename.c_str(), "r"))
     {
         if (m_file == NULL)
         {
@@ -90,8 +86,7 @@ namespace serial
      * @brief Move constructor
      */
     IBinaryFile::IBinaryFile(IBinaryFile &&other) noexcept
-    : m_filename(std::move(other.m_filename))
-    , m_file(std::exchange(other.m_file, nullptr))
+    : m_file(std::exchange(other.m_file, nullptr))
     {
     }
 
@@ -100,7 +95,6 @@ namespace serial
      */
     IBinaryFile &IBinaryFile::operator=(IBinaryFile &&other) noexcept
     {
-        std::swap(m_filename, other.m_filename);
         std::swap(m_file, other.m_file);
         return *this;
     }
