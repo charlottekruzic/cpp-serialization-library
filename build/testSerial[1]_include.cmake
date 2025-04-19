@@ -1,5 +1,0 @@
-if(EXISTS "/home/charlotte/Bureau/TP PMP/serial/build/testSerial[1]_tests.cmake")
-  include("/home/charlotte/Bureau/TP PMP/serial/build/testSerial[1]_tests.cmake")
-else()
-  add_test(testSerial_NOT_BUILT testSerial_NOT_BUILT)
-endif()

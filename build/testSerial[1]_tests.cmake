@@ -1,5 +1,0 @@
-add_test( SerialWriteTest.Default [==[/home/charlotte/Bureau/TP PMP/serial/build/testSerial]==] [==[--gtest_filter=SerialWriteTest.Default]==] --gtest_also_run_disabled_tests)
-set_tests_properties( SerialWriteTest.Default PROPERTIES WORKING_DIRECTORY [==[/home/charlotte/Bureau/TP PMP/serial/build]==] SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
-add_test( SerialReadTest.Default [==[/home/charlotte/Bureau/TP PMP/serial/build/testSerial]==] [==[--gtest_filter=SerialReadTest.Default]==] --gtest_also_run_disabled_tests)
-set_tests_properties( SerialReadTest.Default PROPERTIES WORKING_DIRECTORY [==[/home/charlotte/Bureau/TP PMP/serial/build]==] SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
-set( testSerial_TESTS SerialWriteTest.Default SerialReadTest.Default)
