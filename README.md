@@ -20,7 +20,6 @@ Serial is a lightweight C++ library for binary file serialization. It allows for
 - C++17 compatible compiler
 - CMake 3.10 or higher
 - GoogleTest (included)
-- Filesystem support (std::filesystem)
 
 ## Build Instructions
 1. Clone the repository
