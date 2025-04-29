@@ -81,4 +81,4 @@ IBinaryFile& operator>>(IBinaryFile& file, T& value);
 Where `T` can be: integer types, floating point types, character type, boolean type, std::string, container types (vector, array, map), or custom structures with appropriate operator overloads.
 
 ## Project assignment
-For more information about the purpose of this project, you can find the [complete project assignment file](./ressources/project-assignment-fr.pdf) (in french) within this repository. This project is part of the third-year Bachelor's degree in Computer Science at the University of Franche-Comté.
+For more information about the purpose of this project, you can find the [complete project assignment file](./resources/project-assignment-fr.pdf) (in french) within this repository. This project is part of the third-year Bachelor's degree in Computer Science at the University of Franche-Comté.
